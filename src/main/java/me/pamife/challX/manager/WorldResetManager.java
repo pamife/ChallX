@@ -25,6 +25,9 @@ public class WorldResetManager {
         lobbySpawn.getBlock().setType(Material.GLASS); // Spawn-Plattform erstellen
 
         for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.isDead()) {
+                player.spigot().respawn();
+            }
             player.teleport(lobbySpawn);
             player.sendMessage(ChatColor.GOLD + "Die Welten werden zurückgesetzt...");
         }
@@ -40,6 +43,9 @@ public class WorldResetManager {
                 World overworld = Bukkit.getWorld("world");
                 if (overworld != null) {
                     for (Player p : overworld.getPlayers()) {
+                        if (p.isDead()) {
+                            p.spigot().respawn();
+                        }
                         p.teleport(lobbySpawn);
                     }
                     overworld.setKeepSpawnInMemory(false);
@@ -80,6 +86,7 @@ public class WorldResetManager {
 
                         // Spieler zurückteleportieren
                         for (Player player : Bukkit.getOnlinePlayers()) {
+                            player.setGameMode(GameMode.SURVIVAL); // Zurück in Survival
                             player.teleport(spawnLoc);
                             player.sendMessage(ChatColor.GREEN + "Welten erfolgreich zurückgesetzt!");
                         }

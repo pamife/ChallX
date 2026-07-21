@@ -75,8 +75,9 @@ public class IceFloorChallenge extends BaseChallenge {
         if (!iceActive.contains(uuid)) return;
         if (ChallX.getInstance().getSettingsManager().isExcluded(uuid)) return;
 
-        // Block direkt unter den Füßen bestimmen
-        Block blockUnder = player.getLocation().clone().subtract(0, 0.1, 0).getBlock();
+        if (event.getTo() == null) return;
+        // Block direkt unter den Füßen bestimmen (am Zielort)
+        Block blockUnder = event.getTo().clone().subtract(0, 0.01, 0).getBlock();
         Material originalType = blockUnder.getType();
 
         // Nur bei Luft oder Wasser Eis erzeugen

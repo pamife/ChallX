@@ -38,7 +38,7 @@ public class FlyOnDamageChallenge extends BaseChallenge {
         if (!isEnabled()) return;
         if (event.getEntity() instanceof Player player) {
             if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) return;
-            player.setVelocity(new Vector(0, 1.5, 0));
+            player.setVelocity(new Vector(0, 2.5, 0));
         }
     }
 }

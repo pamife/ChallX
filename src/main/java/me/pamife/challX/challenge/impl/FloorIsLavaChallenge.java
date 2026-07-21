@@ -47,7 +47,7 @@ public class FloorIsLavaChallenge extends BaseChallenge {
                     if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) continue;
                     if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) continue;
 
-                    Block blockUnder = player.getLocation().clone().subtract(0, 0.1, 0).getBlock();
+                    Block blockUnder = player.getLocation().clone().subtract(0, 0.01, 0).getBlock();
                     Material type = blockUnder.getType();
 
                     // Wenn der Block solide ist und kein Luft/Magma/Lava/Bedrock/Portal

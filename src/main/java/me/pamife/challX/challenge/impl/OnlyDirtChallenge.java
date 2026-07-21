@@ -52,11 +52,12 @@ public class OnlyDirtChallenge extends BaseChallenge {
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) continue;
+                    if (player.isDead()) continue;
                     if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) continue;
 
                     // Nur prüfen, wenn der Spieler auf dem Boden steht
                     if (player.isOnGround()) {
-                        Block blockUnder = player.getLocation().clone().subtract(0, 0.1, 0).getBlock();
+                        Block blockUnder = player.getLocation().clone().subtract(0, 0.01, 0).getBlock();
                         Material type = blockUnder.getType();
                         
                         // Wenn der Block unter dem Spieler kein Dirt ist und nicht Luft/Wasser/Lava

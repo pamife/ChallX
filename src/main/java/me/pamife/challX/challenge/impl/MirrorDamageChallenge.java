@@ -121,6 +121,7 @@ public class MirrorDamageChallenge extends BaseChallenge {
                 // Mit Wahrscheinlichkeit spiegeln
                 if (Math.random() < mirrorChance) {
                     double damage = event.getDamage();
+                    event.setCancelled(true); // Verhindert Schaden am Mob
                     player.damage(damage);
                     player.sendMessage("§cDein Schaden wurde gespiegelt! (§4-" + String.format("%.1f", damage) + " HP§c)");
                 }
