@@ -88,6 +88,11 @@ public final class ChallX extends JavaPlugin {
         challengeManager.registerChallenge(new DietChallenge());
         challengeManager.registerChallenge(new NoDropChallenge());
         challengeManager.registerChallenge(new RandomDropChallenge());
+        challengeManager.registerChallenge(new DamageFreezeChallenge());
+        challengeManager.registerChallenge(new JumpMobChallenge());
+        challengeManager.registerChallenge(new KillEffectChallenge());
+        challengeManager.registerChallenge(new ChunkBlockBreakChallenge());
+        challengeManager.registerChallenge(new LevelBorderChallenge());
 
         // CacheManager als letztes initialisieren, da er andere Manager lädt
         this.cacheManager = new CacheManager();

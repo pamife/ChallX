@@ -1,0 +1,77 @@
+package me.pamife.challX.challenge.impl;
+
+import me.pamife.challX.ChallX;
+import me.pamife.challX.challenge.BaseChallenge;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.WorldBorder;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerLevelChangeEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+public class LevelBorderChallenge extends BaseChallenge {
+
+    @Override
+    public String getName() {
+        return "Level = Border";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Die Worldborder entspricht dem XP-Level der Spieler und wird zwischen allen synchronisiert.";
+    }
+
+    @Override
+    public ItemStack getIcon() {
+        ItemStack item = new ItemStack(Material.EXPERIENCE_BOTTLE);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName("§a§lLevel = Border");
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    @Override
+    public void onEnable() {
+        updateBorder();
+    }
+
+    @EventHandler
+    public void onLevelChange(PlayerLevelChangeEvent event) {
+        if (!isEnabled()) return;
+        if (!ChallX.getInstance().getTimerManager().isRunning()) return;
+
+        int newLevel = event.getNewLevel();
+
+        // Level unter allen Online-Spielern synchronisieren
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.getLevel() != newLevel) {
+                p.setLevel(newLevel);
+            }
+        }
+
+        updateBorder();
+    }
+
+    private void updateBorder() {
+        int maxLevel = 0;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.getLevel() > maxLevel) {
+                maxLevel = p.getLevel();
+            }
+        }
+
+        // Mindestgröße 5.0, sonst Level * 2.0
+        double borderSize = Math.max(5.0, maxLevel * 2.0);
+
+        for (org.bukkit.World world : Bukkit.getWorlds()) {
+            WorldBorder border = world.getWorldBorder();
+            border.setSize(borderSize, 2L); // 2 Sekunden Übergang
+        }
+
+        Bukkit.broadcastMessage("§a[Level = Border] §eWorldBorder wurde auf §6" + borderSize + " §eBlöcke angepasst! (Level: " + maxLevel + ")");
+    }
+}
