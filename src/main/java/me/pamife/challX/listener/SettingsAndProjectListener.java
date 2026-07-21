@@ -18,7 +18,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
-import org.bukkit.event.player.PlayerDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -105,7 +105,7 @@ public class SettingsAndProjectListener implements Listener {
                 if (isExcluded(p) || p.getUniqueId().equals(player.getUniqueId())) continue;
                 
                 // Max Health holen
-                double maxHealth = p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+                double maxHealth = p.getAttribute(Attribute.MAX_HEALTH).getValue();
                 p.setHealth(Math.min(maxHealth, newHealth));
             }
             syncRunning = false;
@@ -126,7 +126,7 @@ public class SettingsAndProjectListener implements Listener {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (isExcluded(p) || p.getUniqueId().equals(player.getUniqueId())) continue;
                 
-                double maxHealth = p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+                double maxHealth = p.getAttribute(Attribute.MAX_HEALTH).getValue();
                 double newHealth = Math.min(maxHealth, p.getHealth() + healAmount);
                 p.setHealth(newHealth);
             }
