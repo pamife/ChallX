@@ -52,7 +52,8 @@ public class AnvilRainChallenge extends BaseChallenge {
 
                     // Amboss 15 Blöcke über dem Spieler spawnen
                     Location spawnLoc = player.getLocation().clone().add(0, 15, 0);
-                    player.getWorld().spawnFallingBlock(spawnLoc, Bukkit.createBlockData(Material.ANVIL));
+                    FallingBlock anvil = player.getWorld().spawnFallingBlock(spawnLoc, Bukkit.createBlockData(Material.ANVIL));
+                    anvil.setHurtEntities(true);
                 }
             }
         }.runTaskTimer(ChallX.getInstance(), 60L, 60L);
@@ -63,16 +64,6 @@ public class AnvilRainChallenge extends BaseChallenge {
         if (task != null) {
             task.cancel();
             task = null;
-        }
-    }
-
-    @EventHandler
-    public void onAnvilDamage(EntityDamageByEntityEvent event) {
-        if (!isEnabled()) return;
-        if (event.getDamager() instanceof FallingBlock fallingBlock) {
-            if (fallingBlock.getBlockData().getMaterial() == Material.ANVIL) {
-                event.setCancelled(true);
-            }
         }
     }
 }
