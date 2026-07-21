@@ -86,9 +86,9 @@
     Die Spieler:innen können nur nach unten gehen.
 41. **Nur nach oben**  
     Die Spieler:innen können nur nach oben gehen.
-42. **Damage Freeze**  
+42. **Damage Freeze** [x] (Implementiert)  
     Bei Schaden werden die Spieler:innen eingefroren.
-43. **Sprung = Mob**  
+43. **Sprung = Mob** [x] (Implementiert)  
     Bei jedem Sprung spawnt ein Mob.
 44. **Keine gleichen Herzen**  
     Wenn zwei Spieler:innen gleich viele Herzen haben, sterben sie.
@@ -96,13 +96,13 @@
     Die Spieler:innen können sich nur mit einem Minecart fortbewegen.
 46. **Mob Switch**  
     Wenn die Spieler:innen einem Mob Schaden zufügen, werden sie mit einem zufälligen Mob getauscht.
-47. **Kill = Effekt**  
+47. **Kill = Effekt** [x] (Implementiert)  
     Wenn ein:e Spieler:in ein Mob tötet, bekommt sie:er einen zufälligen, permanenten Effekt.
 48. **Mob Damage = Effekt**  
     Wenn ein:e Spieler:in Schaden von einem Mob bekommt, bekommt sie:er einen zufälligen, permanenten Effekt.
-49. **Abgebaute Blöcke werden im Chunk abgebaut**  
+49. **Abgebaute Blöcke werden im Chunk abgebaut** [x] (Implementiert)  
     Blöcke, die von den Spieler:innen abgebaut werden, werden im ganzen Chunk abgebaut.
-50. **Level = Border**  
+50. **Level = Border** [x] (Implementiert)  
     Die Worldborder ist so groß wie das Level der Spieler:innen. Das Level wird zwischen den Spieler:innen synchronisiert.
 51. **Biom = Effekt**  
     Jedes Biom hat einen eigenen Effekt, den die Spieler:innen in ihm erhalten.
