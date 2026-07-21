@@ -18,7 +18,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.GameMode;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -47,6 +49,16 @@ public class SettingsAndProjectListener implements Listener {
         cutCleanMeat.put(Material.CHICKEN, Material.COOKED_CHICKEN);
         cutCleanMeat.put(Material.MUTTON, Material.COOKED_MUTTON);
         cutCleanMeat.put(Material.RABBIT, Material.COOKED_RABBIT);
+    }
+
+    // --- Player Join: Sync Max Health ---
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        if (isExcluded(player)) return;
+
+        double maxHealth = getSM().getIntSetting(Setting.MAX_HEALTH) * 2.0;
+        player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxHealth);
     }
 
     private SettingsManager getSM() {
@@ -148,6 +160,15 @@ public class SettingsAndProjectListener implements Listener {
                 p.sendTitle("§c§lChallenge vorbei!", "§e" + player.getName() + " ist gestorben.", 10, 70, 20);
             }
             Bukkit.broadcastMessage("§c§l[Challenge] Ein Leben für alle ist aktiv. Die Challenge wurde pausiert!");
+        }
+
+        // Wenn Respawn ausgeschaltet ist
+        if (!getSM().getSetting(Setting.RESPAWN)) {
+            Bukkit.getScheduler().runTaskLater(ChallX.getInstance(), () -> {
+                player.spigot().respawn();
+                player.setGameMode(GameMode.SPECTATOR);
+                player.sendMessage("§cDu bist gestorben und kannst nicht respawnen. Du bist nun Zuschauer!");
+            }, 1L);
         }
     }
 

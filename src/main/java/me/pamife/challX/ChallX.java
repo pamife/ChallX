@@ -50,6 +50,14 @@ public final class ChallX extends JavaPlugin {
         challengeManager.registerChallenge(new DamageClearsInventoryChallenge());
         challengeManager.registerChallenge(new FloorIsLavaChallenge());
         challengeManager.registerChallenge(new IceFloorChallenge());
+        challengeManager.registerChallenge(new ForceMobChallenge());
+        challengeManager.registerChallenge(new NoCraftingChallenge());
+        challengeManager.registerChallenge(new NoTradingChallenge());
+        challengeManager.registerChallenge(new WalkingDamageChallenge());
+        challengeManager.registerChallenge(new TNTRunChallenge());
+        challengeManager.registerChallenge(new NoXPChallenge());
+        challengeManager.registerChallenge(new AnvilRainChallenge());
+        challengeManager.registerChallenge(new WaterMLGChallenge());
 
         // CacheManager als letztes initialisieren, da er andere Manager lädt
         this.cacheManager = new CacheManager();
@@ -179,15 +187,15 @@ public final class ChallX extends JavaPlugin {
     }
 
     public void openChallengesGUI(Player player) {
-        CustomGUI gui = new CustomGUI(Component.text("§e§lChallenges"), 5);
+        CustomGUI gui = new CustomGUI(Component.text("§e§lChallenges"), 6);
 
         // Back-Button
-        gui.setButton(40, new GUIButton(
+        gui.setButton(49, new GUIButton(
                 createItem(Material.BARRIER, "§cZurück zum Hauptmenü"),
                 e -> openSettingsGUI(player)
         ));
 
-        int[] slots = {10, 11, 12, 13, 14, 15};
+        int[] slots = {10, 11, 12, 13, 14, 15, 16, 28, 29, 30, 31, 32, 33, 34};
         var challenges = challengeManager.getChallenges();
 
         for (int i = 0; i < challenges.size() && i < slots.length; i++) {
@@ -234,57 +242,144 @@ public final class ChallX extends JavaPlugin {
             ));
         }
 
-        fillBackground(gui, 5);
+        fillBackground(gui, 6);
         gui.open(player);
     }
 
     public void openGlobalSettingsGUI(Player player) {
-        CustomGUI gui = new CustomGUI(Component.text("§b§lGlobale Einstellungen"), 5);
+        CustomGUI gui = new CustomGUI(Component.text("§b§lGlobale Einstellungen"), 6);
 
-        gui.setButton(40, new GUIButton(
+        gui.setButton(49, new GUIButton(
                 createItem(Material.BARRIER, "§cZurück zum Hauptmenü"),
                 e -> openSettingsGUI(player)
         ));
 
-        Setting[] settings = Setting.values();
-        int[] slots = {10, 11, 12, 13, 14, 15};
+        Setting[] settings = {
+                Setting.SHARED_HEARTS, Setting.ONE_LIFE_FOR_ALL, Setting.NATURAL_REGEN,
+                Setting.CUT_CLEAN, Setting.DAMAGE_IN_CHAT, Setting.PVP, Setting.RESPAWN,
+                Setting.SETTINGS_TITLE, Setting.MAX_HEALTH
+        };
+        int[] slots = {10, 11, 12, 13, 14, 15, 16, 28, 29};
         Material[] materials = {
                 Material.HEART_OF_THE_SEA, // SHARED_HEARTS
                 Material.TOTEM_OF_UNDYING, // ONE_LIFE_FOR_ALL
                 Material.GOLDEN_APPLE,     // NATURAL_REGEN
                 Material.IRON_INGOT,       // CUT_CLEAN
                 Material.WRITABLE_BOOK,    // DAMAGE_IN_CHAT
-                Material.IRON_SWORD        // PVP
+                Material.IRON_SWORD,       // PVP
+                Material.RED_BED,          // RESPAWN
+                Material.NAME_TAG,         // SETTINGS_TITLE
+                Material.APPLE             // MAX_HEALTH
         };
 
         for (int i = 0; i < settings.length && i < slots.length; i++) {
             Setting s = settings[i];
             int slotIdx = slots[i];
             int statusSlotIdx = slotIdx + 9;
-            boolean enabled = settingsManager.getSetting(s);
 
-            ItemStack icon = createItem(materials[i], "§b" + s.getDisplayName(), "§7" + s.getDescription(), "", "§7Status: " + (enabled ? "§aAktiviert" : "§cDeaktiviert"));
+            if (s == Setting.MAX_HEALTH) {
+                int hearts = settingsManager.getIntSetting(s);
+                ItemStack icon = createItem(materials[i], "§b" + s.getDisplayName(), "§7" + s.getDescription(), "", "§7Aktueller Wert: §e" + hearts + " Herzen", "", "§7[Klicke für Einstellungen]");
+                
+                gui.setButton(slotIdx, new GUIButton(icon, e -> openMaxHealthGUI(player)));
 
-            GUIButton clickBtn = new GUIButton(icon, e -> {
-                settingsManager.setSetting(s, !settingsManager.getSetting(s));
-                openGlobalSettingsGUI(player);
-            });
+                ItemStack valItem = createItem(Material.RED_STAINED_GLASS_PANE, "§e" + hearts + " Herzen", "§7Klicke zum Einstellen");
+                gui.setButton(statusSlotIdx, new GUIButton(valItem, e -> openMaxHealthGUI(player)));
+            } else {
+                boolean enabled = settingsManager.getSetting(s);
+                ItemStack icon = createItem(materials[i], "§b" + s.getDisplayName(), "§7" + s.getDescription(), "", "§7Status: " + (enabled ? "§aAktiviert" : "§cDeaktiviert"));
 
-            gui.setButton(slotIdx, clickBtn);
+                gui.setButton(slotIdx, new GUIButton(icon, e -> {
+                    boolean newVal = !settingsManager.getSetting(s);
+                    settingsManager.setSetting(s, newVal);
+                    broadcastSettingsChange("§e" + s.getDisplayName() + " §7wurde " + (newVal ? "§aaktiviert" : "§cdeaktiviert") + ".");
+                    openGlobalSettingsGUI(player);
+                }));
 
-            Material paneMaterial = enabled ? Material.GREEN_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
-            String paneName = enabled ? "§aAktiviert" : "§cDeaktiviert";
-            gui.setButton(statusSlotIdx, new GUIButton(
-                    createItem(paneMaterial, paneName, "§7Klicke zum Umschalten"),
-                    e -> {
-                        settingsManager.setSetting(s, !settingsManager.getSetting(s));
-                        openGlobalSettingsGUI(player);
-                    }
-            ));
+                Material paneMaterial = enabled ? Material.GREEN_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
+                String paneName = enabled ? "§aAktiviert" : "§cDeaktiviert";
+                gui.setButton(statusSlotIdx, new GUIButton(
+                        createItem(paneMaterial, paneName, "§7Klicke zum Umschalten"),
+                        e -> {
+                            boolean newVal = !settingsManager.getSetting(s);
+                            settingsManager.setSetting(s, newVal);
+                            broadcastSettingsChange("§e" + s.getDisplayName() + " §7wurde " + (newVal ? "§aaktiviert" : "§cdeaktiviert") + ".");
+                            openGlobalSettingsGUI(player);
+                        }
+                ));
+            }
         }
 
-        fillBackground(gui, 5);
+        fillBackground(gui, 6);
         gui.open(player);
+    }
+
+    public void openMaxHealthGUI(Player player) {
+        CustomGUI gui = new CustomGUI(Component.text("§c§lMaximale Herzen"), 1);
+
+        // -1 Herz (Slot 2)
+        ItemStack minus = new ItemStack(Material.RED_WOOL);
+        ItemMeta minusMeta = minus.getItemMeta();
+        if (minusMeta != null) {
+            minusMeta.setDisplayName("§c-1 Herz");
+            minus.setItemMeta(minusMeta);
+        }
+        gui.setButton(2, new GUIButton(minus, e -> {
+            int current = settingsManager.getIntSetting(Setting.MAX_HEALTH);
+            if (current > 1) {
+                settingsManager.setIntSetting(Setting.MAX_HEALTH, current - 1);
+                updateMaxHealth();
+                broadcastSettingsChange("§bMax. Herzen §7auf §e" + (current - 1) + " Herzen §7gesetzt.");
+            }
+            openMaxHealthGUI(player);
+        }));
+
+        // Info (Slot 4)
+        int hearts = settingsManager.getIntSetting(Setting.MAX_HEALTH);
+        ItemStack info = createItem(Material.HEART_OF_THE_SEA, "§eMaximale Herzen: §6" + hearts, "§7Setzt die Herzen aller Spieler.");
+        gui.setButton(4, new GUIButton(info, e -> {}));
+
+        // +1 Herz (Slot 6)
+        ItemStack plus = new ItemStack(Material.GREEN_WOOL);
+        ItemMeta plusMeta = plus.getItemMeta();
+        if (plusMeta != null) {
+            plusMeta.setDisplayName("§a+1 Herz");
+            plus.setItemMeta(plusMeta);
+        }
+        gui.setButton(6, new GUIButton(plus, e -> {
+            int current = settingsManager.getIntSetting(Setting.MAX_HEALTH);
+            settingsManager.setIntSetting(Setting.MAX_HEALTH, current + 1);
+            updateMaxHealth();
+            broadcastSettingsChange("§bMax. Herzen §7auf §e" + (current + 1) + " Herzen §7gesetzt.");
+            openMaxHealthGUI(player);
+        }));
+
+        // Zurück (Slot 8)
+        gui.setButton(8, new GUIButton(
+                createItem(Material.BARRIER, "§cZurück zu Einstellungen"),
+                e -> openGlobalSettingsGUI(player)
+        ));
+
+        gui.open(player);
+    }
+
+    public void broadcastSettingsChange(String message) {
+        if (settingsManager.getSetting(Setting.SETTINGS_TITLE)) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.sendTitle("§bEinstellung geändert", message, 10, 40, 10);
+            }
+        }
+    }
+
+    public void updateMaxHealth() {
+        double healthAmount = settingsManager.getIntSetting(Setting.MAX_HEALTH) * 2.0;
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (settingsManager.isExcluded(player.getUniqueId())) continue;
+            var maxHealthAttr = player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH);
+            if (maxHealthAttr != null) {
+                maxHealthAttr.setBaseValue(healthAmount);
+            }
+        }
     }
 
     public void openProjectsGUI(Player player) {

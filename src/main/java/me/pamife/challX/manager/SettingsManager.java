@@ -7,6 +7,8 @@ public class SettingsManager {
     private final Map<Setting, Boolean> settingStates = new HashMap<>();
     private final Set<UUID> excludedPlayers = new HashSet<>();
 
+    private final Map<Setting, Integer> intSettings = new HashMap<>();
+
     public SettingsManager() {
         // Standardwerte initialisieren
         settingStates.put(Setting.SHARED_HEARTS, false);
@@ -15,6 +17,10 @@ public class SettingsManager {
         settingStates.put(Setting.CUT_CLEAN, false);
         settingStates.put(Setting.DAMAGE_IN_CHAT, false);
         settingStates.put(Setting.PVP, true);
+        settingStates.put(Setting.RESPAWN, true);
+        settingStates.put(Setting.SETTINGS_TITLE, true);
+
+        intSettings.put(Setting.MAX_HEALTH, 10); // 10 Herzen standardmäßig
     }
 
     public boolean getSetting(Setting setting) {
@@ -23,6 +29,18 @@ public class SettingsManager {
 
     public void setSetting(Setting setting, boolean enabled) {
         settingStates.put(setting, enabled);
+    }
+
+    public int getIntSetting(Setting setting) {
+        return intSettings.getOrDefault(setting, 0);
+    }
+
+    public void setIntSetting(Setting setting, int value) {
+        intSettings.put(setting, value);
+    }
+
+    public Map<Setting, Integer> getIntSettings() {
+        return intSettings;
     }
 
     public Map<Setting, Boolean> getSettingStates() {

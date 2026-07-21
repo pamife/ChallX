@@ -44,6 +44,9 @@ public class CacheManager {
             for (Map.Entry<Setting, Boolean> entry : sm.getSettingStates().entrySet()) {
                 data.settings.put(entry.getKey().name(), entry.getValue());
             }
+            for (Map.Entry<Setting, Integer> entry : sm.getIntSettings().entrySet()) {
+                data.intSettings.put(entry.getKey().name(), entry.getValue());
+            }
 
             // Excluded Players
             for (UUID uuid : sm.getExcludedPlayers()) {
@@ -114,6 +117,12 @@ public class CacheManager {
                     sm.setSetting(setting, entry.getValue());
                 } catch (IllegalArgumentException ignored) {}
             }
+            for (Map.Entry<String, Integer> entry : data.intSettings.entrySet()) {
+                try {
+                    Setting setting = Setting.valueOf(entry.getKey());
+                    sm.setIntSetting(setting, entry.getValue());
+                } catch (IllegalArgumentException ignored) {}
+            }
 
             // Excluded Players
             for (String uuidStr : data.excludedPlayers) {
@@ -171,6 +180,7 @@ public class CacheManager {
         boolean timerRunning = false;
         boolean timerReverse = false;
         Map<String, Boolean> settings = new HashMap<>();
+        Map<String, Integer> intSettings = new HashMap<>();
         List<String> excludedPlayers = new ArrayList<>();
         List<String> killedMobs = new ArrayList<>();
         boolean allMobsProjectEnabled = false;

@@ -6,7 +6,10 @@ public enum Setting {
     NATURAL_REGEN("Natürliche Regeneration", "Toggelt die natürliche Regeneration."),
     CUT_CLEAN("Cut Clean", "Erze und Fleisch droppen direkt geschmolzen/gebraten."),
     DAMAGE_IN_CHAT("Schaden im Chat", "Gibt Schaden von Spielern im Chat aus."),
-    PVP("PVP", "Aktiviert oder deaktiviert PVP zwischen Spielern.");
+    PVP("PVP", "Aktiviert oder deaktiviert PVP zwischen Spielern."),
+    RESPAWN("Respawn", "Bestimmt, ob Spieler normal respawnen können."),
+    MAX_HEALTH("Maximale Herzen", "Setzt das maximale Leben aller Spieler."),
+    SETTINGS_TITLE("Titel bei Änderungen", "Zeigt einen Bildschirm-Titel bei Einstellungsänderungen an.");
 
     private final String displayName;
     private final String description;
