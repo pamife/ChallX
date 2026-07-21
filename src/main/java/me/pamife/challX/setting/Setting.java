@@ -9,7 +9,9 @@ public enum Setting {
     PVP("PVP", "Aktiviert oder deaktiviert PVP zwischen Spielern."),
     RESPAWN("Respawn", "Bestimmt, ob Spieler normal respawnen können."),
     MAX_HEALTH("Maximale Herzen", "Setzt das maximale Leben aller Spieler."),
-    SETTINGS_TITLE("Titel bei Änderungen", "Zeigt einen Bildschirm-Titel bei Einstellungsänderungen an.");
+    SETTINGS_TITLE("Titel bei Änderungen", "Zeigt einen Bildschirm-Titel bei Einstellungsänderungen an."),
+    PAUSE_ON_DAMAGE("Pause bei Schaden", "Pausiert den Timer automatisch, wenn ein Spieler Schaden erleidet."),
+    START_ON_MOVE("Start bei Bewegung", "Startet den Timer automatisch, wenn sich ein Spieler bewegt.");
 
     private final String displayName;
     private final String description;

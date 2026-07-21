@@ -19,6 +19,8 @@ public class SettingsManager {
         settingStates.put(Setting.PVP, true);
         settingStates.put(Setting.RESPAWN, true);
         settingStates.put(Setting.SETTINGS_TITLE, true);
+        settingStates.put(Setting.PAUSE_ON_DAMAGE, false);
+        settingStates.put(Setting.START_ON_MOVE, false);
 
         intSettings.put(Setting.MAX_HEALTH, 10); // 10 Herzen standardmäßig
     }

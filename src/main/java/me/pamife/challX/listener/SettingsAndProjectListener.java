@@ -23,6 +23,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
@@ -129,6 +130,33 @@ public class SettingsAndProjectListener implements Listener {
                 p.setHealth(Math.min(maxHealth, newHealth));
             }
             syncRunning = false;
+        }
+
+        // 3. Pause bei Schaden
+        if (getSM().getSetting(Setting.PAUSE_ON_DAMAGE) && damage > 0) {
+            ChallX.getInstance().getTimerManager().pause();
+            Bukkit.broadcastMessage("§c[Timer] §eDer Timer wurde pausiert, da §6" + player.getName() + " §eSchaden erlitten hat!");
+        }
+    }
+
+    // --- Start bei Bewegung ---
+    @EventHandler
+    public void onPlayerMoveStartTimer(PlayerMoveEvent event) {
+        if (!getSM().getSetting(Setting.START_ON_MOVE)) return;
+        if (ChallX.getInstance().getTimerManager().isRunning()) return;
+
+        Player player = event.getPlayer();
+        if (isExcluded(player)) return;
+        if (player.getGameMode() == GameMode.SPECTATOR || player.getGameMode() == GameMode.CREATIVE) return;
+
+        Location from = event.getFrom();
+        Location to = event.getTo();
+        if (to == null) return;
+
+        // Horizontale Bewegung prüfen (X/Z)
+        if (from.getX() != to.getX() || from.getZ() != to.getZ()) {
+            ChallX.getInstance().getTimerManager().start();
+            Bukkit.broadcastMessage("§a[Timer] §eDer Timer wurde gestartet, da sich §2" + player.getName() + " §ebewegt hat!");
         }
     }
 

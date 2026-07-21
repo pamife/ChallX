@@ -58,6 +58,11 @@ public final class ChallX extends JavaPlugin {
         challengeManager.registerChallenge(new NoXPChallenge());
         challengeManager.registerChallenge(new AnvilRainChallenge());
         challengeManager.registerChallenge(new WaterMLGChallenge());
+        challengeManager.registerChallenge(new TrafficLightChallenge());
+        challengeManager.registerChallenge(new NoDuplicateItemsChallenge());
+        challengeManager.registerChallenge(new SocialDistancingChallenge());
+        challengeManager.registerChallenge(new AdvancementDamageChallenge());
+        challengeManager.registerChallenge(new RandomMLGChallenge());
 
         // CacheManager als letztes initialisieren, da er andere Manager lädt
         this.cacheManager = new CacheManager();
@@ -187,7 +192,11 @@ public final class ChallX extends JavaPlugin {
     }
 
     public void openChallengesGUI(Player player) {
-        CustomGUI gui = new CustomGUI(Component.text("§e§lChallenges"), 6);
+        openChallengesGUI(player, 0);
+    }
+
+    public void openChallengesGUI(Player player, int page) {
+        CustomGUI gui = new CustomGUI(Component.text("§e§lChallenges (Seite " + (page + 1) + ")"), 6);
 
         // Back-Button
         gui.setButton(49, new GUIButton(
@@ -198,8 +207,31 @@ public final class ChallX extends JavaPlugin {
         int[] slots = {10, 11, 12, 13, 14, 15, 16, 28, 29, 30, 31, 32, 33, 34};
         var challenges = challengeManager.getChallenges();
 
-        for (int i = 0; i < challenges.size() && i < slots.length; i++) {
-            Challenge c = challenges.get(i);
+        int challengesPerPage = slots.length; // 14 pro Seite
+        int totalPages = (int) Math.ceil((double) challenges.size() / (double) challengesPerPage);
+        int startIdx = page * challengesPerPage;
+
+        // Vorherige Seite (Slot 48)
+        if (page > 0) {
+            gui.setButton(48, new GUIButton(
+                    createItem(Material.ARROW, "§e§lVorherige Seite"),
+                    e -> openChallengesGUI(player, page - 1)
+            ));
+        }
+
+        // Nächste Seite (Slot 50)
+        if (page < totalPages - 1) {
+            gui.setButton(50, new GUIButton(
+                    createItem(Material.ARROW, "§e§lNächste Seite"),
+                    e -> openChallengesGUI(player, page + 1)
+            ));
+        }
+
+        for (int i = 0; i < challengesPerPage; i++) {
+            int challengeIdx = startIdx + i;
+            if (challengeIdx >= challenges.size()) break;
+
+            Challenge c = challenges.get(challengeIdx);
             int slotIdx = slots[i];
             int statusSlotIdx = slotIdx + 9; // Slot direkt darunter
 
@@ -223,7 +255,7 @@ public final class ChallX extends JavaPlugin {
                     c.openSettings(player);
                 } else {
                     c.setEnabled(!c.isEnabled());
-                    openChallengesGUI(player); // GUI neu laden
+                    openChallengesGUI(player, page); // GUI neu laden
                 }
             });
 
@@ -237,7 +269,7 @@ public final class ChallX extends JavaPlugin {
                     createItem(paneMaterial, paneName, "§7Klicke zum Umschalten"),
                     e -> {
                         c.setEnabled(!c.isEnabled());
-                        openChallengesGUI(player);
+                        openChallengesGUI(player, page);
                     }
             ));
         }
@@ -257,9 +289,9 @@ public final class ChallX extends JavaPlugin {
         Setting[] settings = {
                 Setting.SHARED_HEARTS, Setting.ONE_LIFE_FOR_ALL, Setting.NATURAL_REGEN,
                 Setting.CUT_CLEAN, Setting.DAMAGE_IN_CHAT, Setting.PVP, Setting.RESPAWN,
-                Setting.SETTINGS_TITLE, Setting.MAX_HEALTH
+                Setting.SETTINGS_TITLE, Setting.MAX_HEALTH, Setting.PAUSE_ON_DAMAGE, Setting.START_ON_MOVE
         };
-        int[] slots = {10, 11, 12, 13, 14, 15, 16, 28, 29};
+        int[] slots = {10, 11, 12, 13, 14, 15, 16, 28, 29, 30, 31};
         Material[] materials = {
                 Material.HEART_OF_THE_SEA, // SHARED_HEARTS
                 Material.TOTEM_OF_UNDYING, // ONE_LIFE_FOR_ALL
@@ -269,7 +301,9 @@ public final class ChallX extends JavaPlugin {
                 Material.IRON_SWORD,       // PVP
                 Material.RED_BED,          // RESPAWN
                 Material.NAME_TAG,         // SETTINGS_TITLE
-                Material.APPLE             // MAX_HEALTH
+                Material.APPLE,            // MAX_HEALTH
+                Material.REDSTONE,         // PAUSE_ON_DAMAGE
+                Material.FEATHER           // START_ON_MOVE
         };
 
         for (int i = 0; i < settings.length && i < slots.length; i++) {
