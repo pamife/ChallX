@@ -1,0 +1,6 @@
+name: ChallX
+version: '$version'
+
+main: me.pamife.challX.ChallX
+api-version: '1.21.11'
+load: POSTWORLD
