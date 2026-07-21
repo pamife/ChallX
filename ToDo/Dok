@@ -4,23 +4,23 @@
 
 ## 🏆 Challenges
 
-1. **Bei Schaden fliegen**  
+1. **Bei Schaden fliegen** [x] (Implementiert)  
    Die Spieler:innen fliegen bei Schaden in die Luft.
-2. **Nur Dirt**  
+2. **Nur Dirt** [x] (Implementiert)  
    Die Spieler:innen sterben, sobald sie nicht mehr auf Dirt stehen.
-3. **Gespiegelter Schaden**  
+3. **Gespiegelter Schaden** [x] (Implementiert)  
    Mit einer bestimmten Wahrscheinlichkeit wird der Schaden, den Spieler:innen Entities zufügen, gespiegelt.
 4. **Bedrock-Wand**  
    Alle Spieler:innen werden von einer Bedrock-Wand verfolgt.
-5. **Schaden leert Inventar**  
+5. **Schaden leert Inventar** [x] (Implementiert)  
    Das Inventar der Spieler:innen wird geleert, wenn sie Schaden bekommen.
-6. **Der Boden ist Lava**  
+6. **Der Boden ist Lava** [x] (Implementiert)  
    Der Boden unter den Spieler:innen wird erst zu Magma und danach zu Lava.
 7. **Kein Craften**  
    Die Spieler:innen können keinen Crafting Table mehr benutzen.
 8. **Kein Traden**  
    Die Spieler:innen können nicht mehr mit Villagern traden.
-9. **Eisboden**  
+9. **Eisboden** [x] (Implementiert)  
    Alle Spieler:innen ziehen einen Eisboden unter sich her, den sie mit Sneaken an- und ausschalten können.
 10. **Laufen = Schaden**  
     Alle Spieler:innen bekommen, nach einer bestimmten Anzahl gelaufener Blöcke, ein Herz Schaden.
@@ -117,7 +117,7 @@
 
 ## 📜 Projekte
 
-1. **Alle Mobs töten**  
+1. **Alle Mobs töten** [x] (Implementiert)  
    Die Spieler:innen müssen alle Mobs, die es in Minecraft gibt, töten.
 2. **Alle Items sammeln**  
    Die Spieler:innen müssen alle Items, die es in Minecraft gibt, in einer vorgegebenen Reihenfolge sammeln.
@@ -130,18 +130,18 @@
 
 ## ⚙️ Einstellungen
 
-1. **Geteilte Herzen** – Die Spieler:innen haben immer gleich viele Herzen.
+1. **Geteilte Herzen** [x] (Implementiert) – Die Spieler:innen haben immer gleich viele Herzen.
 2. **Respawn** – Die Spieler:innen können respawnen.
-3. **Ein Leben für alle** – Stirbt ein:e Spieler:in, ist die Challenge vorbei.
+3. **Ein Leben für alle** [x] (Implementiert) – Stirbt ein:e Spieler:in, ist die Challenge vorbei.
 4. **Maximale Herzen** – Die maximale Anzahl an Herzen, die die Spieler:innen haben können.
-5. **Natürliche Regeneration** – Die Spieler:innen können auf natürliche Art und Weise regenerieren.
+5. **Natürliche Regeneration** [x] (Implementiert) – Die Spieler:innen können auf natürliche Art und Weise regenerieren.
 6. **Unnatürliche Regeneration** – Die Spieler:innen können auf unnatürliche Art und Weise regenerieren.
-7. **Cut Clean** – Fleisch und Erze droppen direkt im gebratenen/geschmolzenen Zustand.
-8. **Schaden im Chat** – Zeigt den Schaden, den Spieler:innen nehmen, im Chat an.
+7. **Cut Clean** [x] (Implementiert) – Fleisch und Erze droppen direkt im gebratenen/geschmolzenen Zustand.
+8. **Schaden im Chat** [x] (Implementiert) – Zeigt den Schaden, den Spieler:innen nehmen, im Chat an.
 9. **Titel** – Zeigt allen Spieler:innen einen Titel, wenn die Einstellungen geändert werden.
 10. **Ender-Partikel** – Während der Timer pausiert ist, haben die Spieler:innen Ender-Partikel unter ihren Füßen.
 11. **Todeskoordinaten** – Zeigt die Koordinaten hinter der Todesnachricht an.
-12. **PVP** – Die Spieler:innen können sich gegenseitig Schaden zufügen.
+12. **PVP** [x] (Implementiert) – Die Spieler:innen können sich gegenseitig Schaden zufügen.
 13. **Tab-HP** – Zeigt die Herzen der Spieler:innen in der Tab-Liste an.
 14. **Enderdragon** – Die Challenge ist absolviert, wenn der Enderdrache besiegt wird.
 15. **Wither** – Die Challenge ist absolviert, wenn der Wither besiegt wird.
@@ -150,23 +150,23 @@
 
 ## 🛠️ Zusätzliche Features
 
-1. **Timer** – Ein Timer, der am unteren Bildschirmrand angezeigt wird, um zu verfolgen, wie lange man für die Challenges und Projekte braucht.
-2. **Position** – Ermöglicht es, Positionen zu speichern und wieder anzeigen zu lassen.
-3. **Zuschauer:in/Admin** – Ermöglicht es, einzelne Spieler:innen von Challenges auszuschließen, falls sie nur zugucken oder für die Technik zuständig sind.
+1. **Timer** [x] (Implementiert) – Ein Timer, der am unteren Bildschirmrand angezeigt wird, um zu verfolgen, wie lange man für die Challenges und Projekte braucht.
+2. **Position** [x] (Implementiert) – Ermöglicht es, Positionen zu speichern und wieder anzeigen zu lassen.
+3. **Zuschauer:in/Admin** [x] (Implementiert) – Ermöglicht es, einzelne Spieler:innen von Challenges auszuschließen, falls sie nur zugucken oder für die Technik zuständig sind.
 4. **Invsee** – Ermöglicht es, das Inventar anderer Spieler:innen anzusehen.
-5. **Reset** – Ermöglicht es, automatisch neue Welten zu generieren.
-6. **GUI** – Das komplette Plugin ist via GUI direkt in-game steuerbar.
+5. **Reset** [x] (Implementiert) – Ermöglicht es, automatisch neue Welten zu generieren.
+6. **GUI** [x] (Implementiert) – Das komplette Plugin ist via GUI direkt in-game steuerbar.
 
 ---
 
 ## 💻 Befehle & Permissions
 
-### `/diet`
+### `/diet` [x] (Placeholder)
 Kontrolliert die Diät-Challenge.
 
 ---
 
-### `/exclude`
+### `/exclude` [x] (Implementiert)
 Immunisiert einzelne Spieler:innen (z. B. Zuschauer:innen) gegen Challenges.
 * **Permission:** `challenges.exclude`
 * **Syntax:**
@@ -176,18 +176,18 @@ Immunisiert einzelne Spieler:innen (z. B. Zuschauer:innen) gegen Challenges.
 
 ---
 
-### `/joker`
+### `/joker` [x] (Placeholder)
 Nutzung von Jokern im Force-Item-Battle.
 * **Syntax:** `/joker`
 
 ---
 
-### `/moboverview`
+### `/moboverview` [x] (Implementiert)
 Zeigt die verbleibenden Mobs des Projekts „All Mobs“ an.
 
 ---
 
-### `/position`
+### `/position` [x] (Implementiert)
 Speichert und ruft Positionen ab.
 * **Permission:** `challenges.position`
 * **Syntax:**
@@ -198,27 +198,27 @@ Speichert und ruft Positionen ab.
 
 ---
 
-### `/reset`
+### `/reset` [x] (Implementiert)
 Setzt die Welten zurück und generiert eine neue Welt.
 
 ---
 
-### `/results`
+### `/results` [x] (Placeholder)
 Wertet das Force-Item-Battle aus.
 
 ---
 
-### `/settings`
+### `/settings` [x] (Implementiert)
 Öffnet das Hauptmenü zur Steuerung des Plugins.
 
 ---
 
-### `/skipitem`
+### `/skipitem` [x] (Placeholder)
 Überspringt das aktuelle Item im Projekt „All Items“.
 
 ---
 
-### `/timer`
+### `/timer` [x] (Implementiert)
 Steuerung des Timers.
 * **Permission:** `challenges.timer`
 * **Syntax:**
