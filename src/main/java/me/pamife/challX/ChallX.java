@@ -93,6 +93,19 @@ public final class ChallX extends JavaPlugin {
         challengeManager.registerChallenge(new KillEffectChallenge());
         challengeManager.registerChallenge(new ChunkBlockBreakChallenge());
         challengeManager.registerChallenge(new LevelBorderChallenge());
+        challengeManager.registerChallenge(new SpeedChallenge());
+        challengeManager.registerChallenge(new ForceBiomeChallenge());
+        challengeManager.registerChallenge(new ForceItemChallenge());
+        challengeManager.registerChallenge(new ChunkEffectChallenge());
+        challengeManager.registerChallenge(new OnlyDownChallenge());
+        challengeManager.registerChallenge(new OnlyUpChallenge());
+        challengeManager.registerChallenge(new NoSameHealthChallenge());
+        challengeManager.registerChallenge(new OnlyMinecartChallenge());
+        challengeManager.registerChallenge(new MobSwitchChallenge());
+        challengeManager.registerChallenge(new MobDamageEffectChallenge());
+        challengeManager.registerChallenge(new BiomeEffectChallenge());
+        challengeManager.registerChallenge(new ForceItemBattleChallenge());
+        challengeManager.registerChallenge(new LevelTeleportChallenge());
 
         // CacheManager als letztes initialisieren, da er andere Manager lädt
         this.cacheManager = new CacheManager();
