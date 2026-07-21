@@ -63,6 +63,11 @@ public final class ChallX extends JavaPlugin {
         challengeManager.registerChallenge(new SocialDistancingChallenge());
         challengeManager.registerChallenge(new AdvancementDamageChallenge());
         challengeManager.registerChallenge(new RandomMLGChallenge());
+        challengeManager.registerChallenge(new RandomScaleChallenge());
+        challengeManager.registerChallenge(new JumpDamageChallenge());
+        challengeManager.registerChallenge(new SneakDamageChallenge());
+        challengeManager.registerChallenge(new BlockBreakSpawnMobChallenge());
+        challengeManager.registerChallenge(new RandomEffectOnDamageChallenge());
 
         // CacheManager als letztes initialisieren, da er andere Manager lädt
         this.cacheManager = new CacheManager();
