@@ -24,7 +24,7 @@
    Alle Spieler:innen ziehen einen Eisboden unter sich her, den sie mit Sneaken an- und ausschalten können.
 10. **Laufen = Schaden** [x] (Implementiert)  
     Alle Spieler:innen bekommen, nach einer bestimmten Anzahl gelaufener Blöcke, ein Herz Schaden.
-11. **Speed**  
+11. **Speed** [x] (Implementiert)  
     Alle Entities haben eine einstellbare Geschwindigkeit.
 12. **Ampel** [x] (Implementiert)  
     Alle Spieler:innen haben eine Ampel, die ihnen vorgibt, ob sie laufen dürfen, oder nicht.
@@ -34,7 +34,7 @@
     Die Spieler:innen bekommen regelmäßig Anweisungen, welches Mob sie in einer bestimmten Zeit töten müssen.
 15. **Force-Height** [x] (Implementiert)  
     Die Spieler:innen bekommen regelmäßig Anweisungen, auf welcher Höhe sie in einer bestimmten Zeit stehen müssen.
-16. **Force-Biome**  
+16. **Force-Biome** [x] (Implementiert)  
     Die Spieler:innen bekommen regelmäßig Anweisungen, in welchem Biom sie in einer bestimmten Zeit stehen müssen.
 17. **Block Killer** [x] (Implementiert)  
     Alle Blöcke des Typs, auf denen ein:e Spieler:in steht, werden im ganzen Chunk zerstört.
@@ -46,7 +46,7 @@
     Alle Spieler:innen müssen regelmäßig einen zufälligen MLG absolvieren.
 21. **Schaden = Effekt** [x] (Implementiert)  
     Wenn ein:e Spieler:in Schaden bekommt, erhält sie:er einen zufälligen, permanenten Effekt.
-22. **Force-Item**  
+22. **Force-Item** [x] (Implementiert)  
     Die Spieler:innen bekommen regelmäßig Anweisungen, welches Item sie in einer bestimmten Zeit finden müssen.
 23. **TNT-Run** [x] (Implementiert)  
     Die Blöcke unter den Spieler:innen verschwinden.
@@ -78,37 +78,37 @@
     Alle paar Sekunden droppen die Spieler:innen ein zufälliges Item.
 37. **Keine gleichen Items** [x] (Implementiert)  
     Die Spieler:innen dürfen keine gleichen Items im Inventar haben.
-38. **Chunk = Effekt**  
+38. **Chunk = Effekt** [x] (Implementiert)  
     Jeder Chunk hat einen eigenen Effekt, den die Spieler:innen in ihm erhalten.
 39. **Social Distancing** [x] (Implementiert)  
     Die Spieler:innen müssen einen einstellbaren Abstand zu allen Mobs und anderen Spieler:innen einhalten.
-40. **Nur nach unten**  
+40. **Nur nach unten** [x] (Implementiert)  
     Die Spieler:innen können nur nach unten gehen.
-41. **Nur nach oben**  
+41. **Nur nach oben** [x] (Implementiert)  
     Die Spieler:innen können nur nach oben gehen.
 42. **Damage Freeze** [x] (Implementiert)  
     Bei Schaden werden die Spieler:innen eingefroren.
 43. **Sprung = Mob** [x] (Implementiert)  
     Bei jedem Sprung spawnt ein Mob.
-44. **Keine gleichen Herzen**  
+44. **Keine gleichen Herzen** [x] (Implementiert)  
     Wenn zwei Spieler:innen gleich viele Herzen haben, sterben sie.
-45. **Nur mit Minecart**  
+45. **Nur mit Minecart** [x] (Implementiert)  
     Die Spieler:innen können sich nur mit einem Minecart fortbewegen.
-46. **Mob Switch**  
+46. **Mob Switch** [x] (Implementiert)  
     Wenn die Spieler:innen einem Mob Schaden zufügen, werden sie mit einem zufälligen Mob getauscht.
 47. **Kill = Effekt** [x] (Implementiert)  
     Wenn ein:e Spieler:in ein Mob tötet, bekommt sie:er einen zufälligen, permanenten Effekt.
-48. **Mob Damage = Effekt**  
+48. **Mob Damage = Effekt** [x] (Implementiert)  
     Wenn ein:e Spieler:in Schaden von einem Mob bekommt, bekommt sie:er einen zufälligen, permanenten Effekt.
 49. **Abgebaute Blöcke werden im Chunk abgebaut** [x] (Implementiert)  
     Blöcke, die von den Spieler:innen abgebaut werden, werden im ganzen Chunk abgebaut.
 50. **Level = Border** [x] (Implementiert)  
     Die Worldborder ist so groß wie das Level der Spieler:innen. Das Level wird zwischen den Spieler:innen synchronisiert.
-51. **Biom = Effekt**  
+51. **Biom = Effekt** [x] (Implementiert)  
     Jedes Biom hat einen eigenen Effekt, den die Spieler:innen in ihm erhalten.
-52. **Force Item Battle**  
+52. **Force Item Battle** [x] (Implementiert)  
     Die Spieler:innen müssen gegeneinander Items in einer gewissen Zeit sammeln. Die:Der Spieler:in mit den meisten Items gewinnt.
-53. **Level = Teleport**  
+53. **Level = Teleport** [x] (Implementiert)  
     Die Spieler:innen können sich ausschließlich mit Enderperlen fortbewegen. Der einzige Weg, Enderperlen zu bekommen, ist durch Level.
 54. **Randomizer** [x] (Implementiert)  
     Alle Blöcke, die abgebaut werden, droppen zufällige Items.
