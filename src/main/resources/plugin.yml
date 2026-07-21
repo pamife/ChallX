@@ -4,3 +4,30 @@ version: '$version'
 main: me.pamife.challX.ChallX
 api-version: '1.21.11'
 load: POSTWORLD
+
+commands:
+  settings:
+    description: Oeffnet das Einstellungsmenue.
+    aliases: [challenges]
+  timer:
+    description: Steuert den Timer.
+    permission: challenges.timer
+  exclude:
+    description: Schliesst Spieler von Challenges aus.
+    permission: challenges.exclude
+  position:
+    description: Speichert und ruft Positionen ab.
+    permission: challenges.position
+  reset:
+    description: Setzt die Welt zurueck.
+    permission: challenges.reset
+  moboverview:
+    description: Zeigt verbleibende Mobs fuer das Projekt an.
+  diet:
+    description: Steuert die Diaet-Challenge.
+  joker:
+    description: Nutzt einen Joker im Battle.
+  results:
+    description: Zeigt Battle Ergebnisse.
+  skipitem:
+    description: Ueberspringt das aktuelle Item.
