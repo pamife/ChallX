@@ -21,19 +21,20 @@ public class BlockDropRandomizerChallenge extends BaseChallenge {
 
     // Feste Zuweisung von abgebautem Block-Typ zu Drop-Typ
     private final Map<Material, Material> dropMap = new HashMap<>();
+    
+    // Verhindert, dass Items doppelt vergeben werden
+    private final Set<Material> assignedItems = new HashSet<>();
 
-    private static final List<Material> CURATED_POOL = Arrays.asList(
-            Material.DIRT, Material.COBBLESTONE, Material.OAK_LOG, Material.STICK, Material.WHEAT_SEEDS,
-            Material.COAL, Material.IRON_ORE, Material.GOLD_ORE, Material.DIAMOND, Material.EMERALD,
-            Material.NETHERITE_SCRAP, Material.NETHERITE_INGOT, Material.REDSTONE, Material.LAPIS_LAZULI, Material.OBSIDIAN,
-            Material.APPLE, Material.BREAD, Material.COOKED_BEEF, Material.GOLDEN_APPLE, Material.ENCHANTED_GOLDEN_APPLE,
-            Material.WATER_BUCKET, Material.LAVA_BUCKET, Material.MILK_BUCKET, Material.IRON_SWORD, Material.DIAMOND_SWORD,
-            Material.NETHERITE_SWORD, Material.IRON_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE, Material.BOW,
-            Material.ARROW, Material.TRIDENT, Material.CROSSBOW, Material.SHIELD, Material.IRON_HELMET,
-            Material.IRON_CHESTPLATE, Material.IRON_LEGGINGS, Material.IRON_BOOTS, Material.DIAMOND_HELMET, Material.DIAMOND_CHESTPLATE,
-            Material.DIAMOND_LEGGINGS, Material.DIAMOND_BOOTS, Material.ELYTRA, Material.TOTEM_OF_UNDYING, Material.SHULKER_BOX,
-            Material.ENDER_PEARL, Material.SLIME_BALL, Material.STRING, Material.GUNPOWDER, Material.TNT
-    );
+    // Pool aller verfügbaren, echten Minecraft-Items (ca. 1000+ Items in 1.21)
+    private static final List<Material> ITEM_POOL = new ArrayList<>();
+
+    static {
+        for (Material mat : Material.values()) {
+            if (mat.isItem() && !mat.isLegacy() && mat != Material.AIR) {
+                ITEM_POOL.add(mat);
+            }
+        }
+    }
 
     @Override
     public String getName() {
@@ -42,7 +43,7 @@ public class BlockDropRandomizerChallenge extends BaseChallenge {
 
     @Override
     public String getDescription() {
-        return "Jeder Block-Typ hat einen festen, zufälligen Drop (z. B. Birke = Kohle).";
+        return "Jeder Block-Typ hat einen festen, einzigartigen Drop (z. B. Birke = Kohle). Jedes Item wird nur einmal vergeben.";
     }
 
     @Override
@@ -70,6 +71,7 @@ public class BlockDropRandomizerChallenge extends BaseChallenge {
                 createSettingsItem(Material.SPIDER_EYE, "§e§lDrops neu mischen", "§7Setzt alle aktuellen Zuweisungen zurück.", "§7Beim nächsten Abbauen wird neu ausgewürfelt."),
                 e -> {
                     dropMap.clear();
+                    assignedItems.clear();
                     Bukkit.broadcastMessage("§b[Randomizer] §eAlle Block-Drops wurden neu gemischt!");
                     player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 1.0f, 1.0f);
                     openSettings(player);
@@ -117,10 +119,23 @@ public class BlockDropRandomizerChallenge extends BaseChallenge {
 
         Material originalMaterial = event.getBlock().getType();
         
+        Material dropMaterial = dropMap.get(originalMaterial);
+        
         // Zuweisung holen oder neu erzeugen
-        Material dropMaterial = dropMap.computeIfAbsent(originalMaterial, k -> 
-                CURATED_POOL.get(new Random().nextInt(CURATED_POOL.size()))
-        );
+        if (dropMaterial == null) {
+            List<Material> available = new ArrayList<>(ITEM_POOL);
+            available.removeAll(assignedItems);
+            
+            if (available.isEmpty()) {
+                // Notfall-Reset falls über 1000 verschiedene Blöcke abgebaut wurden
+                assignedItems.clear();
+                available.addAll(ITEM_POOL);
+            }
+
+            dropMaterial = available.get(new Random().nextInt(available.size()));
+            dropMap.put(originalMaterial, dropMaterial);
+            assignedItems.add(dropMaterial);
+        }
 
         event.setDropItems(false);
 
@@ -142,11 +157,13 @@ public class BlockDropRandomizerChallenge extends BaseChallenge {
     public void loadSettingsState(Object state) {
         if (state instanceof Map<?, ?> map) {
             dropMap.clear();
+            assignedItems.clear();
             for (Map.Entry<?, ?> entry : map.entrySet()) {
                 try {
                     Material key = Material.valueOf((String) entry.getKey());
                     Material val = Material.valueOf((String) entry.getValue());
                     dropMap.put(key, val);
+                    assignedItems.add(val);
                 } catch (Exception ignored) {}
             }
         }
