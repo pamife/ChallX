@@ -19,8 +19,13 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -58,7 +63,10 @@ public class SettingsAndProjectListener implements Listener {
         if (isExcluded(player)) return;
 
         double maxHealth = getSM().getIntSetting(Setting.MAX_HEALTH) * 2.0;
-        player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxHealth);
+        var maxHealthAttr = player.getAttribute(Attribute.MAX_HEALTH);
+        if (maxHealthAttr != null) {
+            maxHealthAttr.setBaseValue(maxHealth);
+        }
     }
 
     private SettingsManager getSM() {

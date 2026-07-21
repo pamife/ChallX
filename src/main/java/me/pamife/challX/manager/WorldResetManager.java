@@ -19,110 +19,45 @@ public class WorldResetManager {
         if (resetting) return;
         resetting = true;
 
-        // 1. Temporäre Lobby-Welt erstellen und Spieler dorthin teleportieren
-        World lobby = createLobbyWorld();
-        Location lobbySpawn = new Location(lobby, 0.5, 100, 0.5);
-        lobbySpawn.getBlock().setType(Material.GLASS); // Spawn-Plattform erstellen
-
+        // 1. Hinweis an alle Spieler senden
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.isDead()) {
-                player.spigot().respawn();
-            }
-            player.teleport(lobbySpawn);
-            player.sendMessage(ChatColor.GOLD + "Die Welten werden zurückgesetzt...");
+            player.sendTitle("§c§lRESET ANGEFORDERT", "§eBitte starte den Server neu!", 10, 100, 20);
+            player.sendMessage(" ");
+            player.sendMessage("§c§l[Reset] §eEin Welten-Reset wurde angefordert!");
+            player.sendMessage("§c§l[Reset] §7Die Nether- und End-Welten wurden zurückgesetzt.");
+            player.sendMessage("§c§l[Reset] §eBitte starte den Server jetzt neu, damit die Hauptwelt neu generiert wird.");
+            player.sendMessage(" ");
         }
 
-        // Verzögerung, um Teleportationen abzuschließen
+        // 2. Timer pausieren und zurücksetzen
+        ChallX.getInstance().getTimerManager().pause();
+        ChallX.getInstance().getTimerManager().reset();
+
+        // 3. Nether und End entladen und löschen (da diese entladen werden können)
+        unloadWorld("world_nether");
+        unloadWorld("world_the_end");
+
         new BukkitRunnable() {
             @Override
             public void run() {
-                // 2. Welten entladen
-                unloadWorld("world_nether");
-                unloadWorld("world_the_end");
-
-                World overworld = Bukkit.getWorld("world");
-                if (overworld != null) {
-                    for (Player p : overworld.getPlayers()) {
-                        if (p.isDead()) {
-                            p.spigot().respawn();
-                        }
-                        p.teleport(lobbySpawn);
-                    }
-                    overworld.setKeepSpawnInMemory(false);
-                    for (Chunk chunk : overworld.getLoadedChunks()) {
-                        chunk.unload(false);
-                    }
-                }
-
-                // 3. Welten-Dateien löschen
                 deleteWorldFolder(new File("world_nether"));
                 deleteWorldFolder(new File("world_the_end"));
+                
+                // Hauptwelt-region Ordner versuchen zu löschen (falls möglich, sonst wird es beim Restart vom OS/Skript geregelt)
                 deleteMainWorldContents();
 
-                // 4. Welten neu generieren (nach einer kurzen Pause, damit Dateisperren gelöst werden)
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        Bukkit.createWorld(new WorldCreator("world_nether").environment(World.Environment.NETHER));
-                        Bukkit.createWorld(new WorldCreator("world_the_end").environment(World.Environment.THE_END));
-
-                        World newOverworld = Bukkit.getWorld("world");
-                        if (newOverworld == null) {
-                            newOverworld = Bukkit.createWorld(new WorldCreator("world"));
-                        }
-
-                        // Chunk laden und generieren
-                        Location spawnLoc = newOverworld.getSpawnLocation();
-                        newOverworld.getChunkAt(spawnLoc).load(true);
-
-                        // Sichere Y-Koordinate bestimmen (Verhindert Void-Spawning)
-                        int highestY = newOverworld.getHighestBlockYAt(spawnLoc);
-                        if (highestY < -64) {
-                            highestY = 64; // Fallback
-                        }
-                        spawnLoc.setY(highestY + 1);
-
-                        // Spawnplattform in der Hauptwelt erstellen
-                        for (int x = -2; x <= 2; x++) {
-                            for (int z = -2; z <= 2; z++) {
-                                spawnLoc.clone().add(x, -1, z).getBlock().setType(Material.GLASS);
-                            }
-                        }
-
-                        // Timer und Einstellungen zurücksetzen
-                        ChallX.getInstance().getTimerManager().reset();
-
-                        // Spieler zurückteleportieren
-                        for (Player player : Bukkit.getOnlinePlayers()) {
-                            player.setGameMode(GameMode.SURVIVAL); // Zurück in Survival
-                            player.teleport(spawnLoc);
-                            player.sendMessage(ChatColor.GREEN + "Welten erfolgreich zurückgesetzt!");
-                        }
-
-                        resetting = false;
-                    }
-                }.runTaskLater(ChallX.getInstance(), 40L);
+                resetting = false;
             }
         }.runTaskLater(ChallX.getInstance(), 20L);
-    }
-
-    private World createLobbyWorld() {
-        World lobby = Bukkit.getWorld("challx_lobby");
-        if (lobby == null) {
-            WorldCreator creator = new WorldCreator("challx_lobby");
-            creator.type(WorldType.FLAT);
-            creator.generatorSettings("{\"layers\": [{\"block\": \"minecraft:air\", \"height\": 1}], \"biome\": \"minecraft:the_void\"}");
-            creator.generateStructures(false);
-            lobby = Bukkit.createWorld(creator);
-        }
-        return lobby;
     }
 
     private void unloadWorld(String name) {
         World world = Bukkit.getWorld(name);
         if (world != null) {
+            World overworld = Bukkit.getWorld("world");
+            Location spawn = overworld != null ? overworld.getSpawnLocation() : new Location(Bukkit.getWorlds().get(0), 0.5, 100, 0.5);
             for (Player p : world.getPlayers()) {
-                p.teleport(Bukkit.getWorld("challx_lobby").getSpawnLocation());
+                p.teleport(spawn);
             }
             Bukkit.unloadWorld(world, false);
         }
