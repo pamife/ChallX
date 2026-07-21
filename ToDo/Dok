@@ -60,7 +60,7 @@
     Die Spieler:innen können nie still stehen.
 28. **Item Decay** [x] (Implementiert)  
     Die Spieler:innen können alle Items nur eine bestimmte Zeit in ihrem Inventar haben.
-29. **Item Damage**  
+29. **Item Damage** [x] (Implementiert)  
     Die Spieler:innen bekommen Schaden, wenn sie Items aufsammeln oder im Inventar bewegen. Der Schaden ist 0,5♥ multipliziert mit der Anzahl der Items.
 30. **1 Haltbarkeit** [x] (Implementiert)  
     Alle Tools können nur einmal verwendet werden.
@@ -68,13 +68,13 @@
     Die Spieler:innen sterben, wenn sie volle Herzen haben.
 32. **Chunk-Abbau** [x] (Implementiert)  
     Regelmäßig wird die oberste Schicht an Blöcken aus den Chunks der Spieler:innen gelöscht.
-33. **Snake**  
+33. **Snake** [x] (Implementiert)  
     Alle Spieler:innen ziehen eine tödliche Spur hinter sich her.
-34. **Diät**  
+34. **Diät** [x] (Implementiert)  
     Jedes Essen kann nur einmal gegessen werden.
-35. **Kein Droppen**  
+35. **Kein Droppen** [x] (Implementiert)  
     Items können nicht gedroppt werden.
-36. **Random Droppen**  
+36. **Random Droppen** [x] (Implementiert)  
     Alle paar Sekunden droppen die Spieler:innen ein zufälliges Item.
 37. **Keine gleichen Items** [x] (Implementiert)  
     Die Spieler:innen dürfen keine gleichen Items im Inventar haben.
@@ -153,7 +153,7 @@
 1. **Timer** [x] (Implementiert) – Ein Timer, der am unteren Bildschirmrand angezeigt wird, um zu verfolgen, wie lange man für die Challenges und Projekte braucht.
 2. **Position** [x] (Implementiert) – Ermöglicht es, Positionen zu speichern und wieder anzeigen zu lassen.
 3. **Zuschauer:in/Admin** [x] (Implementiert) – Ermöglicht es, einzelne Spieler:innen von Challenges auszuschließen, falls sie nur zugucken oder für die Technik zuständig sind.
-4. **Invsee** – Ermöglicht es, das Inventar anderer Spieler:innen anzusehen.
+4. **Invsee** [x] (Implementiert) – Ermöglicht es, das Inventar anderer Spieler:innen anzusehen.
 5. **Reset** [x] (Implementiert) – Ermöglicht es, automatisch neue Welten zu generieren.
 6. **GUI** [x] (Implementiert) – Das komplette Plugin ist via GUI direkt in-game steuerbar.
 
@@ -161,7 +161,7 @@
 
 ## 💻 Befehle & Permissions
 
-### `/diet` [x] (Placeholder)
+### `/diet` [x] (Implementiert)
 Kontrolliert die Diät-Challenge.
 
 ---
