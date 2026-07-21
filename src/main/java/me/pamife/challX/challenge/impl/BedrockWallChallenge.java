@@ -16,7 +16,11 @@ import org.bukkit.scheduler.BukkitTask;
 public class BedrockWallChallenge extends BaseChallenge {
 
     private BukkitTask task;
+    private double wallX = 0.0;
     private double wallZ = 0.0;
+    private double lastWallX = 0.0;
+    private double lastWallZ = 0.0;
+    private int lastY = 0;
     private boolean initialized = false;
 
     @Override
@@ -26,7 +30,7 @@ public class BedrockWallChallenge extends BaseChallenge {
 
     @Override
     public String getDescription() {
-        return "Eine sich bewegende Bedrock-Wand verfolgt alle Spieler (+Z-Richtung).";
+        return "Eine 1x1 Bedrock-Säule (25 Blöcke hoch) verfolgt dich und erstickt dich bei Kontakt.";
     }
 
     @Override
@@ -58,49 +62,59 @@ public class BedrockWallChallenge extends BaseChallenge {
 
                 if (target == null) return;
 
+                Location pLoc = target.getLocation();
+
                 if (!initialized) {
-                    wallZ = target.getLocation().getZ() - 20.0;
+                    wallX = pLoc.getX() - 15.0;
+                    wallZ = pLoc.getZ() - 15.0;
+                    lastWallX = wallX;
+                    lastWallZ = wallZ;
+                    lastY = pLoc.getBlockY();
                     initialized = true;
-                    Bukkit.broadcastMessage("§8[Bedrock-Wand] §eDie Wand hat sich bei Z = " + (int)wallZ + " formiert!");
+                    Bukkit.broadcastMessage("§8[Bedrock-Säule] §eDie Säule hat sich formiert und verfolgt dich!");
                 }
 
-                // Wand bewegt sich 1 Block vorwärts (+Z Richtung)
-                int oldWallZ = (int) wallZ;
-                wallZ += 1.0;
-                int newWallZ = (int) wallZ;
-
-                // Alte Wand entfernen (mit Luft ersetzen)
-                for (int x = target.getLocation().getBlockX() - 12; x <= target.getLocation().getBlockX() + 12; x++) {
-                    for (int y = target.getLocation().getBlockY() - 5; y <= target.getLocation().getBlockY() + 15; y++) {
-                        Block block = target.getWorld().getBlockAt(x, y, oldWallZ);
-                        if (block.getType() == Material.BEDROCK) {
-                            block.setType(Material.AIR);
-                        }
+                // 1. Alte Säule abbauen
+                int oldX = (int) Math.floor(lastWallX);
+                int oldZ = (int) Math.floor(lastWallZ);
+                for (int y = lastY - 5; y < lastY + 20; y++) {
+                    Block b = target.getWorld().getBlockAt(oldX, y, oldZ);
+                    if (b.getType() == Material.BEDROCK) {
+                        b.setType(Material.AIR);
                     }
                 }
 
-                // Neue Wand platzieren
-                for (int x = target.getLocation().getBlockX() - 12; x <= target.getLocation().getBlockX() + 12; x++) {
-                    for (int y = target.getLocation().getBlockY() - 5; y <= target.getLocation().getBlockY() + 15; y++) {
-                        Block block = target.getWorld().getBlockAt(x, y, newWallZ);
-                        if (block.getType() == Material.AIR || block.getType().isBurnable() || block.getType() == Material.GRASS_BLOCK || block.getType() == Material.DIRT || block.getType() == Material.STONE) {
-                            block.setType(Material.BEDROCK);
-                        }
+                // 2. Berechne Vektor zum Spieler
+                double dx = pLoc.getX() - wallX;
+                double dz = pLoc.getZ() - wallZ;
+                double distance = Math.sqrt(dx * dx + dz * dz);
+
+                if (distance > 0.1) {
+                    // Bewegt sich 0.35 Blöcke pro halbe Sekunde (0.7m/s) auf den Spieler zu
+                    double step = Math.min(0.35, distance);
+                    wallX += (dx / distance) * step;
+                    wallZ += (dz / distance) * step;
+                }
+
+                // 3. Neue Säule aufstellen
+                int newX = (int) Math.floor(wallX);
+                int newZ = (int) Math.floor(wallZ);
+                int currentY = pLoc.getBlockY();
+
+                for (int y = currentY - 5; y < currentY + 20; y++) {
+                    Block b = target.getWorld().getBlockAt(newX, y, newZ);
+                    // Überschreibe nur Luft, Blätter, Gras, Stein und zerstörbare Blöcke
+                    if (b.getType() == Material.AIR || b.getType().isBurnable() || b.getType() == Material.GRASS_BLOCK || b.getType() == Material.DIRT || b.getType() == Material.STONE) {
+                        b.setType(Material.BEDROCK);
                     }
                 }
 
-                // Spieler-Kollision prüfen
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (ChallX.getInstance().getSettingsManager().isExcluded(p.getUniqueId())) continue;
-                    if (p.getGameMode() == GameMode.SPECTATOR || p.getGameMode() == GameMode.CREATIVE) continue;
-
-                    if (p.getLocation().getZ() <= wallZ) {
-                        p.damage(20.0); // Sofortiger Tod
-                        p.sendMessage("§cDu wurdest von der Bedrock-Wand zerquetscht!");
-                    }
-                }
+                // Speichere Positionen für den nächsten Tick
+                lastWallX = wallX;
+                lastWallZ = wallZ;
+                lastY = currentY;
             }
-        }.runTaskTimer(ChallX.getInstance(), 60L, 60L); // Alle 3 Sekunden (60 Ticks)
+        }.runTaskTimer(ChallX.getInstance(), 10L, 10L); // Check alle 10 Ticks (0.5s)
     }
 
     @Override
@@ -109,5 +123,6 @@ public class BedrockWallChallenge extends BaseChallenge {
             task.cancel();
             task = null;
         }
+        initialized = false;
     }
 }

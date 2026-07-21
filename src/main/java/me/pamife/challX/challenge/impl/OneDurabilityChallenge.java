@@ -8,6 +8,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -39,15 +42,67 @@ public class OneDurabilityChallenge extends BaseChallenge {
         return name.endsWith("_SWORD") || name.endsWith("_PICKAXE") || name.endsWith("_AXE") || 
                name.endsWith("_SHOVEL") || name.endsWith("_HOE") || material == Material.BOW || 
                material == Material.CROSSBOW || material == Material.TRIDENT || material == Material.SHEARS || 
-               material == Material.FLINT_AND_STEEL || material == Material.SHIELD;
+               material == Material.FLINT_AND_STEEL || material == Material.SHIELD || material == Material.FISHING_ROD;
     }
 
-    private void breakTool(Player player) {
-        ItemStack item = player.getInventory().getItemInMainHand();
-        if (item.getType() != Material.AIR && isTool(item.getType())) {
-            player.getInventory().setItemInMainHand(null);
+    private void breakTool(Player player, ItemStack item) {
+        if (item != null && item.getType() != Material.AIR && isTool(item.getType())) {
+            item.setAmount(0);
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
             player.sendMessage("§cDein Werkzeug ist zerbrochen!");
+        }
+    }
+
+    // Fängt jeglichen Haltbarkeitsschaden ab (z.B. Abbauen, Schlagen, Blocken mit Schild)
+    @EventHandler
+    public void onItemDamage(PlayerItemDamageEvent event) {
+        if (!isEnabled()) return;
+        if (!ChallX.getInstance().getTimerManager().isRunning()) return;
+
+        Player player = event.getPlayer();
+        if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) return;
+        if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) return;
+
+        if (isTool(event.getItem().getType())) {
+            // Setzt den Schaden auf das Maximum, um es sofort zu zerstören
+            event.setDamage(event.getItem().getType().getMaxDurability());
+            player.sendMessage("§cDein Werkzeug ist zerbrochen!");
+        }
+    }
+
+    // Fängt das Schießen von Bögen/Armbrüsten ab
+    @EventHandler
+    public void onShootBow(EntityShootBowEvent event) {
+        if (!isEnabled()) return;
+        if (!ChallX.getInstance().getTimerManager().isRunning()) return;
+
+        if (event.getEntity() instanceof Player player) {
+            if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) return;
+            if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) return;
+
+            ItemStack bow = event.getBow();
+            if (bow != null) {
+                breakTool(player, bow);
+            }
+        }
+    }
+
+    // Fängt das Werfen von Dreizacken ab
+    @EventHandler
+    public void onProjectileLaunch(ProjectileLaunchEvent event) {
+        if (!isEnabled()) return;
+        if (!ChallX.getInstance().getTimerManager().isRunning()) return;
+
+        if (event.getEntity().getShooter() instanceof Player player) {
+            if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) return;
+            if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) return;
+
+            if (event.getEntity() instanceof org.bukkit.entity.Trident) {
+                ItemStack hand = player.getInventory().getItemInMainHand();
+                if (hand.getType() == Material.TRIDENT) {
+                    breakTool(player, hand);
+                }
+            }
         }
     }
 
@@ -60,7 +115,7 @@ public class OneDurabilityChallenge extends BaseChallenge {
         if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) return;
         if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) return;
 
-        breakTool(player);
+        breakTool(player, player.getInventory().getItemInMainHand());
     }
 
     @EventHandler
@@ -72,7 +127,7 @@ public class OneDurabilityChallenge extends BaseChallenge {
             if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) return;
             if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) return;
 
-            breakTool(player);
+            breakTool(player, player.getInventory().getItemInMainHand());
         }
     }
 }
