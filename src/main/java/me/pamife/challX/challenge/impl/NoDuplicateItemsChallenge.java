@@ -45,7 +45,6 @@ public class NoDuplicateItemsChallenge extends BaseChallenge {
 
     @Override
     public void onEnable() {
-        // Kontinuierliche Prüfung jede Sekunde (falls Spieler Items im Inventar belassen)
         task = new BukkitRunnable() {
             @Override
             public void run() {
@@ -67,12 +66,29 @@ public class NoDuplicateItemsChallenge extends BaseChallenge {
     }
 
     private void checkPlayer(Player player) {
-        if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) return;
-        if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) return;
-        if (player.isDead()) return;
-        if (!ChallX.getInstance().getTimerManager().isRunning()) return;
+        if (!isEnabled()) return;
+        
+        boolean timerRunning = ChallX.getInstance().getTimerManager().isRunning();
+        boolean excluded = ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId());
+        boolean creativeOrSpec = player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE;
 
-        if (hasDuplicates(player)) {
+        boolean duplicates = hasDuplicates(player);
+
+        if (duplicates) {
+            if (!timerRunning) {
+                // Timer läuft nicht -> Keine Aktion
+                return;
+            }
+            if (creativeOrSpec) {
+                player.sendMessage("§e[Debug] Duplikat erkannt! Aber kein Schaden wegen Creative/Spectator-Modus.");
+                return;
+            }
+            if (excluded) {
+                player.sendMessage("§e[Debug] Duplikat erkannt! Aber kein Schaden, weil du ausgeschlossen bist.");
+                return;
+            }
+
+            // Normaler Schaden
             player.damage(2.0); // 1 Herz Schaden
             player.sendMessage("§cDu hast doppelte Items im Inventar!");
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
@@ -81,26 +97,31 @@ public class NoDuplicateItemsChallenge extends BaseChallenge {
 
     private boolean hasDuplicates(Player player) {
         Set<Material> seen = new HashSet<>();
+        
+        // Debugging-Ausgabe an die Konsole zur Nachvollziehbarkeit
+        Bukkit.getLogger().info("[ChallX] Prüfe Inventar von " + player.getName());
+
         for (ItemStack item : player.getInventory().getContents()) {
             if (item == null) continue;
             Material type = item.getType();
             if (type == Material.AIR) continue;
-            if (item.getAmount() <= 0) continue; // Skip leere Ghost-Items
+            if (item.getAmount() <= 0) continue;
+
+            Bukkit.getLogger().info("[ChallX]   Slot enthält: " + type + " (Menge: " + item.getAmount() + ")");
 
             if (seen.contains(type)) {
-                return true; // Doppelter Item-Typ gefunden!
+                Bukkit.getLogger().info("[ChallX]   -> DUPLIKAT GEFUNDEN: " + type);
+                return true;
             }
             seen.add(type);
         }
         return false;
     }
 
-    // --- Events für unmittelbare Reaktion ---
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!isEnabled()) return;
         if (event.getWhoClicked() instanceof Player player) {
-            // 1 Tick verzögern, damit Spigot das Inventar aktualisiert hat
             Bukkit.getScheduler().runTask(ChallX.getInstance(), () -> checkPlayer(player));
         }
     }
