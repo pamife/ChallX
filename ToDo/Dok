@@ -10,63 +10,63 @@
    Die Spieler:innen sterben, sobald sie nicht mehr auf Dirt stehen.
 3. **Gespiegelter Schaden** [x] (Implementiert)  
    Mit einer bestimmten Wahrscheinlichkeit wird der Schaden, den Spieler:innen Entities zufügen, gespiegelt.
-4. **Bedrock-Wand**  
+4. **Bedrock-Wand** [x] (Implementiert)  
    Alle Spieler:innen werden von einer Bedrock-Wand verfolgt.
 5. **Schaden leert Inventar** [x] (Implementiert)  
    Das Inventar der Spieler:innen wird geleert, wenn sie Schaden bekommen.
 6. **Der Boden ist Lava** [x] (Implementiert)  
    Der Boden unter den Spieler:innen wird erst zu Magma und danach zu Lava.
-7. **Kein Craften**  
+7. **Kein Craften** [x] (Implementiert)  
    Die Spieler:innen können keinen Crafting Table mehr benutzen.
-8. **Kein Traden**  
+8. **Kein Traden** [x] (Implementiert)  
    Die Spieler:innen können nicht mehr mit Villagern traden.
 9. **Eisboden** [x] (Implementiert)  
    Alle Spieler:innen ziehen einen Eisboden unter sich her, den sie mit Sneaken an- und ausschalten können.
-10. **Laufen = Schaden**  
+10. **Laufen = Schaden** [x] (Implementiert)  
     Alle Spieler:innen bekommen, nach einer bestimmten Anzahl gelaufener Blöcke, ein Herz Schaden.
 11. **Speed**  
     Alle Entities haben eine einstellbare Geschwindigkeit.
-12. **Ampel**  
+12. **Ampel** [x] (Implementiert)  
     Alle Spieler:innen haben eine Ampel, die ihnen vorgibt, ob sie laufen dürfen, oder nicht.
 13. **Force-Block**  
     Die Spieler:innen bekommen regelmäßig Anweisungen, auf welchem Block sie in einer bestimmten Zeit stehen müssen.
-14. **Force-Mob**  
+14. **Force-Mob** [x] (Implementiert)  
     Die Spieler:innen bekommen regelmäßig Anweisungen, welches Mob sie in einer bestimmten Zeit töten müssen.
 15. **Force-Height**  
     Die Spieler:innen bekommen regelmäßig Anweisungen, auf welcher Höhe sie in einer bestimmten Zeit stehen müssen.
 16. **Force-Biome**  
     Die Spieler:innen bekommen regelmäßig Anweisungen, in welchem Biom sie in einer bestimmten Zeit stehen müssen.
-17. **Block Killer**  
+17. **Block Killer** [x] (Implementiert)  
     Alle Blöcke des Typs, auf denen ein:e Spieler:in steht, werden im ganzen Chunk zerstört.
 18. **Alles rückgängig**  
     Aktionen, die Spieler:innen machen (Blöcke abbauen, Blöcke platzieren, Mobs töten), werden wieder rückgängig gemacht.
-19. **Water MLG**  
+19. **Water MLG** [x] (Implementiert)  
     Alle Spieler:innen müssen regelmäßig einen Water-MLG absolvieren.
-20. **Random MLG**  
+20. **Random MLG** [x] (Implementiert)  
     Alle Spieler:innen müssen regelmäßig einen zufälligen MLG absolvieren.
-21. **Schaden = Effekt**  
+21. **Schaden = Effekt** [x] (Implementiert)  
     Wenn ein:e Spieler:in Schaden bekommt, erhält sie:er einen zufälligen, permanenten Effekt.
 22. **Force-Item**  
     Die Spieler:innen bekommen regelmäßig Anweisungen, welches Item sie in einer bestimmten Zeit finden müssen.
-23. **TNT-Run**  
+23. **TNT-Run** [x] (Implementiert)  
     Die Blöcke unter den Spieler:innen verschwinden.
-24. **Amboss-Regen**  
+24. **Amboss-Regen** [x] (Implementiert)  
     Über allen Spieler:innen spawnen Ambosse. Die Spawnrate der Ambosse wird immer höher mit der Zeit. Wenn ein:e Spieler:in Schaden bekommt, wird der Radius erhöht.
-25. **Keine XP**  
+25. **Keine XP** [x] (Implementiert)  
     Wenn ein:e Spieler:in XP bekommt, stirbt sie:er.
-26. **Achievement = Schaden**  
+26. **Achievement = Schaden** [x] (Implementiert)  
     Wenn die Spieler:innen ein Achievement bekommen, bekommen sie Schaden.
-27. **Immer Laufen**  
+27. **Immer Laufen** [x] (Implementiert)  
     Die Spieler:innen können nie still stehen.
 28. **Item Decay**  
     Die Spieler:innen können alle Items nur eine bestimmte Zeit in ihrem Inventar haben.
 29. **Item Damage**  
     Die Spieler:innen bekommen Schaden, wenn sie Items aufsammeln oder im Inventar bewegen. Der Schaden ist 0,5♥ multipliziert mit der Anzahl der Items.
-30. **1 Haltbarkeit**  
+30. **1 Haltbarkeit** [x] (Implementiert)  
     Alle Tools können nur einmal verwendet werden.
 31. **Niemals volle Herzen**  
     Die Spieler:innen sterben, wenn sie volle Herzen haben.
-32. **Chunk-Abbau**  
+32. **Chunk-Abbau** [x] (Implementiert)  
     Regelmäßig wird die oberste Schicht an Blöcken aus den Chunks der Spieler:innen gelöscht.
 33. **Snake**  
     Alle Spieler:innen ziehen eine tödliche Spur hinter sich her.
@@ -76,11 +76,11 @@
     Items können nicht gedroppt werden.
 36. **Random Droppen**  
     Alle paar Sekunden droppen die Spieler:innen ein zufälliges Item.
-37. **Keine gleichen Items**  
+37. **Keine gleichen Items** [x] (Implementiert)  
     Die Spieler:innen dürfen keine gleichen Items im Inventar haben.
 38. **Chunk = Effekt**  
     Jeder Chunk hat einen eigenen Effekt, den die Spieler:innen in ihm erhalten.
-39. **Social Distancing**  
+39. **Social Distancing** [x] (Implementiert)  
     Die Spieler:innen müssen einen einstellbaren Abstand zu allen Mobs und anderen Spieler:innen einhalten.
 40. **Nur nach unten**  
     Die Spieler:innen können nur nach unten gehen.
@@ -110,7 +110,7 @@
     Die Spieler:innen müssen gegeneinander Items in einer gewissen Zeit sammeln. Die:Der Spieler:in mit den meisten Items gewinnt.
 53. **Level = Teleport**  
     Die Spieler:innen können sich ausschließlich mit Enderperlen fortbewegen. Der einzige Weg, Enderperlen zu bekommen, ist durch Level.
-54. **Randomizer**  
+54. **Randomizer** [x] (Implementiert)  
     Alle Blöcke, die abgebaut werden, droppen zufällige Items.
 
 ---
@@ -119,11 +119,11 @@
 
 1. **Alle Mobs töten** [x] (Implementiert)  
    Die Spieler:innen müssen alle Mobs, die es in Minecraft gibt, töten.
-2. **Alle Items sammeln**  
+2. **Alle Items sammeln** [x] (Implementiert)  
    Die Spieler:innen müssen alle Items, die es in Minecraft gibt, in einer vorgegebenen Reihenfolge sammeln.
-3. **Alle Todesnachrichten**  
+3. **Alle Todesnachrichten** [x] (Implementiert)  
    Die Spieler:innen müssen alle Todesnachrichten, die es in Minecraft gibt, in einer vorgegeben Reihenfolge bekommen. Bei einem falschen Tod ist das Projekt gescheitert.
-4. **Alle Achievements**  
+4. **Alle Achievements** [x] (Implementiert)  
    Die Spieler:innen müssen alleine oder im Team alle Advancements, die es in Minecraft gibt, bekommen.
 
 ---
@@ -131,20 +131,20 @@
 ## ⚙️ Einstellungen
 
 1. **Geteilte Herzen** [x] (Implementiert) – Die Spieler:innen haben immer gleich viele Herzen.
-2. **Respawn** – Die Spieler:innen können respawnen.
+2. **Respawn** [x] (Implementiert) – Die Spieler:innen können respawnen.
 3. **Ein Leben für alle** [x] (Implementiert) – Stirbt ein:e Spieler:in, ist die Challenge vorbei.
-4. **Maximale Herzen** – Die maximale Anzahl an Herzen, die die Spieler:innen haben können.
+4. **Maximale Herzen** [x] (Implementiert) – Die maximale Anzahl an Herzen, die die Spieler:innen haben können.
 5. **Natürliche Regeneration** [x] (Implementiert) – Die Spieler:innen können auf natürliche Art und Weise regenerieren.
-6. **Unnatürliche Regeneration** – Die Spieler:innen können auf unnatürliche Art und Weise regenerieren.
+6. **Unnatürliche Regeneration** [x] (Implementiert) – Die Spieler:innen können auf unnatürliche Art und Weise regenerieren.
 7. **Cut Clean** [x] (Implementiert) – Fleisch und Erze droppen direkt im gebratenen/geschmolzenen Zustand.
-8. **Schaden im Chat** [x] (Implementiert) – Zeigt den Schaden, den Spieler:innen nehmen, im Chat an.
-9. **Titel** – Zeigt allen Spieler:innen einen Titel, wenn die Einstellungen geändert werden.
-10. **Ender-Partikel** – Während der Timer pausiert ist, haben die Spieler:innen Ender-Partikel unter ihren Füßen.
-11. **Todeskoordinaten** – Zeigt die Koordinaten hinter der Todesnachricht an.
+8. **Schaden im Chat** [x] (Implementiert) – Zeigt den schade, den Spieler:innen nehmen, im Chat an.
+9. **Titel** [x] (Implementiert) – Zeigt allen Spieler:innen einen Titel, wenn die Einstellungen geändert werden.
+10. **Ender-Partikel** [x] (Implementiert) – Während der Timer pausiert ist, haben die Spieler:innen Ender-Partikel unter ihren Füßen.
+11. **Todeskoordinaten** [x] (Implementiert) – Zeigt die Koordinaten hinter der Todesnachricht an.
 12. **PVP** [x] (Implementiert) – Die Spieler:innen können sich gegenseitig Schaden zufügen.
-13. **Tab-HP** – Zeigt die Herzen der Spieler:innen in der Tab-Liste an.
-14. **Enderdragon** – Die Challenge ist absolviert, wenn der Enderdrache besiegt wird.
-15. **Wither** – Die Challenge ist absolviert, wenn der Wither besiegt wird.
+13. **Tab-HP** [x] (Implementiert) – Zeigt die Herzen der Spieler:innen in der Tab-Liste an.
+14. **Enderdragon** [x] (Implementiert) – Die Challenge ist absolviert, wenn der Enderdrache besiegt wird.
+15. **Wither** [x] (Implementiert) – Die Challenge ist absolviert, wenn der Wither besiegt wird.
 
 ---
 
