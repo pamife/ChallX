@@ -5,7 +5,10 @@ import me.pamife.challX.challenge.BaseChallenge;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -60,6 +63,16 @@ public class AnvilRainChallenge extends BaseChallenge {
         if (task != null) {
             task.cancel();
             task = null;
+        }
+    }
+
+    @EventHandler
+    public void onAnvilDamage(EntityDamageByEntityEvent event) {
+        if (!isEnabled()) return;
+        if (event.getDamager() instanceof FallingBlock fallingBlock) {
+            if (fallingBlock.getBlockData().getMaterial() == Material.ANVIL) {
+                event.setCancelled(true);
+            }
         }
     }
 }

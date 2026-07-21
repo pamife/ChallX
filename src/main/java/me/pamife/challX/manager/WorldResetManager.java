@@ -71,10 +71,18 @@ public class WorldResetManager {
                             newOverworld = Bukkit.createWorld(new WorldCreator("world"));
                         }
 
-                        // Spawnplattform in der Hauptwelt erstellen
+                        // Chunk laden und generieren
                         Location spawnLoc = newOverworld.getSpawnLocation();
-                        spawnLoc.setY(newOverworld.getHighestBlockYAt(spawnLoc) + 1);
+                        newOverworld.getChunkAt(spawnLoc).load(true);
 
+                        // Sichere Y-Koordinate bestimmen (Verhindert Void-Spawning)
+                        int highestY = newOverworld.getHighestBlockYAt(spawnLoc);
+                        if (highestY < -64) {
+                            highestY = 64; // Fallback
+                        }
+                        spawnLoc.setY(highestY + 1);
+
+                        // Spawnplattform in der Hauptwelt erstellen
                         for (int x = -2; x <= 2; x++) {
                             for (int z = -2; z <= 2; z++) {
                                 spawnLoc.clone().add(x, -1, z).getBlock().setType(Material.GLASS);
