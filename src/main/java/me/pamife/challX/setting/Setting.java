@@ -11,7 +11,12 @@ public enum Setting {
     MAX_HEALTH("Maximale Herzen", "Setzt das maximale Leben aller Spieler."),
     SETTINGS_TITLE("Titel bei Änderungen", "Zeigt einen Bildschirm-Titel bei Einstellungsänderungen an."),
     PAUSE_ON_DAMAGE("Pause bei Schaden", "Pausiert den Timer automatisch, wenn ein Spieler Schaden erleidet."),
-    START_ON_MOVE("Start bei Bewegung", "Startet den Timer automatisch, wenn sich ein Spieler bewegt.");
+    START_ON_MOVE("Start bei Bewegung", "Startet den Timer automatisch, wenn sich ein Spieler bewegt."),
+    UNNATURAL_REGEN("Unnatürliche Regeneration", "Spieler können auf unnatürliche Art (Tränke, Goldäpfel) regenerieren."),
+    ENDER_PARTICLES("Ender-Partikel", "Spieler haben Partikel unter ihren Füßen, während der Timer pausiert ist."),
+    DEATH_COORDINATES("Todeskoordinaten", "Zeigt die Koordinaten hinter der Todesnachricht an."),
+    TAB_HP("Tab-HP", "Zeigt die Herzen der Spieler in der Tab-Liste an."),
+    BOSS_VICTORY("Boss-Sieg", "Challenge ist absolviert, wenn der Enderdrache oder Wither besiegt wird.");
 
     private final String displayName;
     private final String description;

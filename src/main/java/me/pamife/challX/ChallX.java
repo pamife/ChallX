@@ -73,6 +73,11 @@ public final class ChallX extends JavaPlugin {
         challengeManager.registerChallenge(new BlockDropRandomizerChallenge());
         challengeManager.registerChallenge(new NoInventoryOpenChallenge());
         challengeManager.registerChallenge(new ChaosPlacementChallenge());
+        challengeManager.registerChallenge(new BedrockWallChallenge());
+        challengeManager.registerChallenge(new BlockKillerChallenge());
+        challengeManager.registerChallenge(new AlwaysRunChallenge());
+        challengeManager.registerChallenge(new OneDurabilityChallenge());
+        challengeManager.registerChallenge(new ChunkDecayChallenge());
 
         // CacheManager als letztes initialisieren, da er andere Manager lädt
         this.cacheManager = new CacheManager();
@@ -93,6 +98,25 @@ public final class ChallX extends JavaPlugin {
                 pluginCmd.setTabCompleter(cmdManager);
             }
         }
+
+        // Tab-HP initialisieren
+        updateTabHP();
+
+        // Ender-Partikel Task
+        new org.bukkit.scheduler.BukkitRunnable() {
+            @Override
+            public void run() {
+                if (timerManager.isRunning()) return;
+                if (!settingsManager.getSetting(Setting.ENDER_PARTICLES)) return;
+
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (settingsManager.isExcluded(player.getUniqueId())) continue;
+                    if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) continue;
+                    
+                    player.getWorld().spawnParticle(org.bukkit.Particle.PORTAL, player.getLocation().add(0, 0.1, 0), 8, 0.2, 0.0, 0.2, 0.02);
+                }
+            }
+        }.runTaskTimer(this, 10L, 10L);
 
         getLogger().info("ChallX erfolgreich geladen!");
     }
@@ -299,9 +323,10 @@ public final class ChallX extends JavaPlugin {
         Setting[] settings = {
                 Setting.SHARED_HEARTS, Setting.ONE_LIFE_FOR_ALL, Setting.NATURAL_REGEN,
                 Setting.CUT_CLEAN, Setting.DAMAGE_IN_CHAT, Setting.PVP, Setting.RESPAWN,
-                Setting.SETTINGS_TITLE, Setting.MAX_HEALTH, Setting.PAUSE_ON_DAMAGE, Setting.START_ON_MOVE
+                Setting.SETTINGS_TITLE, Setting.MAX_HEALTH, Setting.PAUSE_ON_DAMAGE, Setting.START_ON_MOVE,
+                Setting.UNNATURAL_REGEN, Setting.ENDER_PARTICLES, Setting.DEATH_COORDINATES, Setting.TAB_HP, Setting.BOSS_VICTORY
         };
-        int[] slots = {10, 11, 12, 13, 14, 15, 16, 28, 29, 30, 31};
+        int[] slots = {1, 2, 3, 4, 5, 6, 7, 19, 20, 21, 22, 23, 24, 25, 37, 38};
         Material[] materials = {
                 Material.HEART_OF_THE_SEA, // SHARED_HEARTS
                 Material.TOTEM_OF_UNDYING, // ONE_LIFE_FOR_ALL
@@ -313,7 +338,12 @@ public final class ChallX extends JavaPlugin {
                 Material.NAME_TAG,         // SETTINGS_TITLE
                 Material.APPLE,            // MAX_HEALTH
                 Material.REDSTONE,         // PAUSE_ON_DAMAGE
-                Material.FEATHER           // START_ON_MOVE
+                Material.FEATHER,          // START_ON_MOVE
+                Material.GLISTERING_MELON_SLICE, // UNNATURAL_REGEN
+                Material.ENDER_PEARL,      // ENDER_PARTICLES
+                Material.COMPASS,          // DEATH_COORDINATES
+                Material.PLAYER_HEAD,      // TAB_HP
+                Material.NETHER_STAR       // BOSS_VICTORY
         };
 
         for (int i = 0; i < settings.length && i < slots.length; i++) {
@@ -336,6 +366,9 @@ public final class ChallX extends JavaPlugin {
                 gui.setButton(slotIdx, new GUIButton(icon, e -> {
                     boolean newVal = !settingsManager.getSetting(s);
                     settingsManager.setSetting(s, newVal);
+                    if (s == Setting.TAB_HP) {
+                        updateTabHP();
+                    }
                     broadcastSettingsChange("§e" + s.getDisplayName() + " §7wurde " + (newVal ? "§aaktiviert" : "§cdeaktiviert") + ".");
                     openGlobalSettingsGUI(player);
                 }));
@@ -347,6 +380,9 @@ public final class ChallX extends JavaPlugin {
                         e -> {
                             boolean newVal = !settingsManager.getSetting(s);
                             settingsManager.setSetting(s, newVal);
+                            if (s == Setting.TAB_HP) {
+                                updateTabHP();
+                            }
                             broadcastSettingsChange("§e" + s.getDisplayName() + " §7wurde " + (newVal ? "§aaktiviert" : "§cdeaktiviert") + ".");
                             openGlobalSettingsGUI(player);
                         }
@@ -434,41 +470,123 @@ public final class ChallX extends JavaPlugin {
                 e -> openSettingsGUI(player)
         ));
 
-        int killed = projectManager.getKilledMobs().size();
-        int total = projectManager.getTargetMobs().size();
-        boolean enabled = projectManager.isEnabled();
-
-        ItemStack item = createItem(
-                Material.ZOMBIE_HEAD, 
-                "§a§lAlle Mobs töten", 
-                "§7Töte jeden Mob-Typ in Minecraft.", 
-                "", 
-                "§7Status: " + (enabled ? "§aAktiviert" : "§cDeaktiviert"),
-                "§7Fortschritt: §e" + killed + " / " + total + " Mobs getötet.",
-                "",
-                "§7[Linksklick: §eToggeln§7]",
-                "§7[Rechtsklick: §aFortschritt im Chat§7]"
-        );
-
-        gui.setButton(11, new GUIButton(item, e -> {
-            if (e.isRightClick()) {
-                player.closeInventory();
-                player.performCommand("moboverview");
-            } else {
-                projectManager.setEnabled(!projectManager.isEnabled());
-                openProjectsGUI(player);
-            }
-        }));
-
-        Material paneMaterial = enabled ? Material.GREEN_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
-        String paneName = enabled ? "§aAktiviert" : "§cDeaktiviert";
-        gui.setButton(20, new GUIButton(
-                createItem(paneMaterial, paneName, "§7Klicke zum Umschalten"),
-                e -> {
-                    projectManager.setEnabled(!projectManager.isEnabled());
+        // 1. Alle Mobs töten (Slot 10 / Status 19)
+        {
+            int killed = projectManager.getKilledMobs().size();
+            int total = projectManager.getTargetMobs().size();
+            boolean enabled = projectManager.isMobsEnabled();
+            ItemStack item = createItem(
+                    Material.ZOMBIE_HEAD, 
+                    "§a§lAlle Mobs töten", 
+                    "§7Töte jeden Mob-Typ in Minecraft.", 
+                    "", 
+                    "§7Status: " + (enabled ? "§aAktiviert" : "§cDeaktiviert"),
+                    "§7Fortschritt: §e" + killed + " / " + total + " Mobs getötet.",
+                    "",
+                    "§7[Linksklick: §eToggeln§7]",
+                    "§7[Rechtsklick: §aFortschritt im Chat§7]"
+            );
+            gui.setButton(10, new GUIButton(item, e -> {
+                if (e.isRightClick()) {
+                    player.closeInventory();
+                    player.performCommand("moboverview");
+                } else {
+                    projectManager.setMobsEnabled(!projectManager.isMobsEnabled());
                     openProjectsGUI(player);
                 }
-        ));
+            }));
+            Material paneMaterial = enabled ? Material.GREEN_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
+            String paneName = enabled ? "§aAktiviert" : "§cDeaktiviert";
+            gui.setButton(19, new GUIButton(createItem(paneMaterial, paneName, "§7Klicke zum Umschalten"), e -> {
+                projectManager.setMobsEnabled(!projectManager.isMobsEnabled());
+                openProjectsGUI(player);
+            }));
+        }
+
+        // 2. Alle Items sammeln (Slot 12 / Status 21)
+        {
+            int index = projectManager.getCurrentItemIndex();
+            int total = projectManager.getTargetItems().size();
+            boolean enabled = projectManager.isItemsEnabled();
+            String currentItemName = index < total ? projectManager.getTargetItems().get(index).name() : "Keins";
+            ItemStack item = createItem(
+                    Material.GOLDEN_CARROT, 
+                    "§a§lAlle Items sammeln", 
+                    "§7Sammle alle Items in vorgegebener Reihenfolge.", 
+                    "", 
+                    "§7Status: " + (enabled ? "§aAktiviert" : "§cDeaktiviert"),
+                    "§7Ziel-Item: §e" + currentItemName,
+                    "§7Fortschritt: §e" + index + " / " + total + " Items gesammelt.",
+                    "",
+                    "§7[Linksklick: §eToggeln§7]"
+            );
+            gui.setButton(12, new GUIButton(item, e -> {
+                projectManager.setItemsEnabled(!projectManager.isItemsEnabled());
+                openProjectsGUI(player);
+            }));
+            Material paneMaterial = enabled ? Material.GREEN_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
+            String paneName = enabled ? "§aAktiviert" : "§cDeaktiviert";
+            gui.setButton(21, new GUIButton(createItem(paneMaterial, paneName, "§7Klicke zum Umschalten"), e -> {
+                projectManager.setItemsEnabled(!projectManager.isItemsEnabled());
+                openProjectsGUI(player);
+            }));
+        }
+
+        // 3. Alle Todesnachrichten (Slot 14 / Status 23)
+        {
+            int index = projectManager.getCurrentDeathIndex();
+            int total = projectManager.getTargetDeaths().size();
+            boolean enabled = projectManager.isDeathsEnabled();
+            String currentDeathName = index < total ? projectManager.getDeathCauseName(projectManager.getTargetDeaths().get(index)) : "Keins";
+            ItemStack item = createItem(
+                    Material.WITHER_SKELETON_SKULL, 
+                    "§a§lAlle Todesnachrichten", 
+                    "§7Erleide alle Todesursachen der Reihe nach.", 
+                    "", 
+                    "§7Status: " + (enabled ? "§aAktiviert" : "§cDeaktiviert"),
+                    "§7Ziel-Tod: §e" + currentDeathName,
+                    "§7Fortschritt: §e" + index + " / " + total + " Tode erlitten.",
+                    "",
+                    "§7[Linksklick: §eToggeln§7]"
+            );
+            gui.setButton(14, new GUIButton(item, e -> {
+                projectManager.setDeathsEnabled(!projectManager.isDeathsEnabled());
+                openProjectsGUI(player);
+            }));
+            Material paneMaterial = enabled ? Material.GREEN_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
+            String paneName = enabled ? "§aAktiviert" : "§cDeaktiviert";
+            gui.setButton(23, new GUIButton(createItem(paneMaterial, paneName, "§7Klicke zum Umschalten"), e -> {
+                projectManager.setDeathsEnabled(!projectManager.isDeathsEnabled());
+                openProjectsGUI(player);
+            }));
+        }
+
+        // 4. Alle Achievements (Slot 16 / Status 25)
+        {
+            int completed = projectManager.getCompletedAchievements().size();
+            int total = projectManager.getMinecraftAdvancementCount();
+            boolean enabled = projectManager.isAchievementsEnabled();
+            ItemStack item = createItem(
+                    Material.KNOWLEDGE_BOOK, 
+                    "§a§lAlle Achievements", 
+                    "§7Schalte alle Minecraft Achievements frei.", 
+                    "", 
+                    "§7Status: " + (enabled ? "§aAktiviert" : "§cDeaktiviert"),
+                    "§7Fortschritt: §e" + completed + " / " + total + " freigeschaltet.",
+                    "",
+                    "§7[Linksklick: §eToggeln§7]"
+            );
+            gui.setButton(16, new GUIButton(item, e -> {
+                projectManager.setAchievementsEnabled(!projectManager.isAchievementsEnabled());
+                openProjectsGUI(player);
+            }));
+            Material paneMaterial = enabled ? Material.GREEN_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
+            String paneName = enabled ? "§aAktiviert" : "§cDeaktiviert";
+            gui.setButton(25, new GUIButton(createItem(paneMaterial, paneName, "§7Klicke zum Umschalten"), e -> {
+                projectManager.setAchievementsEnabled(!projectManager.isAchievementsEnabled());
+                openProjectsGUI(player);
+            }));
+        }
 
         fillBackground(gui, 3);
         gui.open(player);
@@ -529,5 +647,22 @@ public final class ChallX extends JavaPlugin {
 
         fillBackground(gui, 3);
         gui.open(player);
+    }
+
+    public void updateTabHP() {
+        boolean enabled = settingsManager.getSetting(Setting.TAB_HP);
+        org.bukkit.scoreboard.Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
+        org.bukkit.scoreboard.Objective obj = sb.getObjective("health_tab");
+        
+        if (enabled) {
+            if (obj == null) {
+                obj = sb.registerNewObjective("health_tab", org.bukkit.scoreboard.Criteria.HEALTH, Component.text("§c❤"), org.bukkit.scoreboard.RenderType.HEARTS);
+            }
+            obj.setDisplaySlot(org.bukkit.scoreboard.DisplaySlot.PLAYER_LIST);
+        } else {
+            if (obj != null) {
+                obj.unregister();
+            }
+        }
     }
 }

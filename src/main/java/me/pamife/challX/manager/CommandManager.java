@@ -64,7 +64,16 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 player.sendMessage("§cKeine Ergebnisse verfügbar.");
                 return true;
             case "skipitem":
-                player.sendMessage("§cKein All-Items Projekt aktiv.");
+                if (!player.hasPermission("challenges.skipitem")) {
+                    player.sendMessage("§cDu hast keine Rechte dafür.");
+                    return true;
+                }
+                ProjectManager pm = ChallX.getInstance().getProjectManager();
+                if (!pm.isItemsEnabled()) {
+                    player.sendMessage("§cDas Projekt 'Alle Items sammeln' ist momentan nicht aktiv.");
+                    return true;
+                }
+                pm.skipItem(player);
                 return true;
         }
 

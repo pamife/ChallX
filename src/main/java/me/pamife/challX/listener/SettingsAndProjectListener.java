@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -160,6 +161,24 @@ public class SettingsAndProjectListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onRegenCancel(EntityRegainHealthEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (isExcluded(player)) return;
+        if (!ChallX.getInstance().getTimerManager().isRunning()) return;
+
+        if (event.getRegainReason() == EntityRegainHealthEvent.RegainReason.SATIATED || 
+            event.getRegainReason() == EntityRegainHealthEvent.RegainReason.REGEN) {
+            if (!getSM().getSetting(Setting.NATURAL_REGEN)) {
+                event.setCancelled(true);
+            }
+        } else {
+            if (!getSM().getSetting(Setting.UNNATURAL_REGEN)) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerRegen(EntityRegainHealthEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
@@ -187,6 +206,19 @@ public class SettingsAndProjectListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
         if (isExcluded(player)) return;
+
+        // Todeskoordinaten
+        if (getSM().getSetting(Setting.DEATH_COORDINATES)) {
+            Location loc = player.getLocation();
+            String coords = String.format(" §7(X: %d, Y: %d, Z: %d)", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+            event.setDeathMessage(event.getDeathMessage() + coords);
+        }
+
+        // Todesnachrichten Projekt check
+        ProjectManager pm = ChallX.getInstance().getProjectManager();
+        if (pm.isDeathsEnabled() && player.getLastDamageCause() != null) {
+            pm.registerDeath(player, player.getLastDamageCause().getCause());
+        }
 
         if (getSM().getSetting(Setting.ONE_LIFE_FOR_ALL)) {
             ChallX.getInstance().getTimerManager().pause();
@@ -259,5 +291,34 @@ public class SettingsAndProjectListener implements Listener {
                 }
             }
         }
+
+        // 3. Boss-Sieg Einstellung
+        if (getSM().getSetting(Setting.BOSS_VICTORY)) {
+            EntityType type = event.getEntityType();
+            if (type == EntityType.ENDER_DRAGON || type == EntityType.WITHER) {
+                ChallX.getInstance().getTimerManager().pause();
+                String bossName = type == EntityType.ENDER_DRAGON ? "Enderdrache" : "Wither";
+                
+                Bukkit.broadcastMessage("§a§l[Sieg] Der " + bossName + " wurde besiegt! Die Challenge ist erfolgreich absolviert!");
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.sendTitle("§a§lChallenge absolviert!", "§eDer " + bossName + " wurde besiegt.", 10, 100, 20);
+                    p.playSound(p.getLocation(), org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+                }
+            }
+        }
+    }
+
+    // --- Projekt: Alle Achievements ---
+    @EventHandler
+    public void onAdvancementDone(org.bukkit.event.player.PlayerAdvancementDoneEvent event) {
+        ProjectManager pm = ChallX.getInstance().getProjectManager();
+        if (!pm.isAchievementsEnabled()) return;
+        if (ChallX.getInstance().getSettingsManager().isExcluded(event.getPlayer().getUniqueId())) return;
+
+        org.bukkit.advancement.Advancement adv = event.getAdvancement();
+        String key = adv.getKey().getKey();
+        if (key.startsWith("recipes/")) return; // Rezepte ausschließen
+
+        pm.registerAchievement(event.getPlayer(), key);
     }
 }

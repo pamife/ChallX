@@ -21,6 +21,11 @@ public class SettingsManager {
         settingStates.put(Setting.SETTINGS_TITLE, true);
         settingStates.put(Setting.PAUSE_ON_DAMAGE, false);
         settingStates.put(Setting.START_ON_MOVE, false);
+        settingStates.put(Setting.UNNATURAL_REGEN, true);
+        settingStates.put(Setting.ENDER_PARTICLES, false);
+        settingStates.put(Setting.DEATH_COORDINATES, true);
+        settingStates.put(Setting.TAB_HP, false);
+        settingStates.put(Setting.BOSS_VICTORY, false);
 
         intSettings.put(Setting.MAX_HEALTH, 10); // 10 Herzen standardmäßig
     }
