@@ -28,17 +28,17 @@
     Alle Entities haben eine einstellbare Geschwindigkeit.
 12. **Ampel** [x] (Implementiert)  
     Alle Spieler:innen haben eine Ampel, die ihnen vorgibt, ob sie laufen dürfen, oder nicht.
-13. **Force-Block**  
+13. **Force-Block** [x] (Implementiert)  
     Die Spieler:innen bekommen regelmäßig Anweisungen, auf welchem Block sie in einer bestimmten Zeit stehen müssen.
 14. **Force-Mob** [x] (Implementiert)  
     Die Spieler:innen bekommen regelmäßig Anweisungen, welches Mob sie in einer bestimmten Zeit töten müssen.
-15. **Force-Height**  
+15. **Force-Height** [x] (Implementiert)  
     Die Spieler:innen bekommen regelmäßig Anweisungen, auf welcher Höhe sie in einer bestimmten Zeit stehen müssen.
 16. **Force-Biome**  
     Die Spieler:innen bekommen regelmäßig Anweisungen, in welchem Biom sie in einer bestimmten Zeit stehen müssen.
 17. **Block Killer** [x] (Implementiert)  
     Alle Blöcke des Typs, auf denen ein:e Spieler:in steht, werden im ganzen Chunk zerstört.
-18. **Alles rückgängig**  
+18. **Alles rückgängig** [x] (Implementiert)  
     Aktionen, die Spieler:innen machen (Blöcke abbauen, Blöcke platzieren, Mobs töten), werden wieder rückgängig gemacht.
 19. **Water MLG** [x] (Implementiert)  
     Alle Spieler:innen müssen regelmäßig einen Water-MLG absolvieren.
@@ -58,13 +58,13 @@
     Wenn die Spieler:innen ein Achievement bekommen, bekommen sie Schaden.
 27. **Immer Laufen** [x] (Implementiert)  
     Die Spieler:innen können nie still stehen.
-28. **Item Decay**  
+28. **Item Decay** [x] (Implementiert)  
     Die Spieler:innen können alle Items nur eine bestimmte Zeit in ihrem Inventar haben.
 29. **Item Damage**  
     Die Spieler:innen bekommen Schaden, wenn sie Items aufsammeln oder im Inventar bewegen. Der Schaden ist 0,5♥ multipliziert mit der Anzahl der Items.
 30. **1 Haltbarkeit** [x] (Implementiert)  
     Alle Tools können nur einmal verwendet werden.
-31. **Niemals volle Herzen**  
+31. **Niemals volle Herzen** [x] (Implementiert)  
     Die Spieler:innen sterben, wenn sie volle Herzen haben.
 32. **Chunk-Abbau** [x] (Implementiert)  
     Regelmäßig wird die oberste Schicht an Blöcken aus den Chunks der Spieler:innen gelöscht.
