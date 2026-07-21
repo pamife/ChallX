@@ -52,6 +52,7 @@ public class CacheManager {
 
             // Killed Mobs
             ProjectManager pm = ChallX.getInstance().getProjectManager();
+            data.allMobsProjectEnabled = pm.isEnabled();
             for (EntityType type : pm.getKilledMobs()) {
                 data.killedMobs.add(type.name());
             }
@@ -123,6 +124,7 @@ public class CacheManager {
 
             // Killed Mobs
             ProjectManager pm = ChallX.getInstance().getProjectManager();
+            pm.setEnabled(data.allMobsProjectEnabled);
             pm.reset();
             for (String mobName : data.killedMobs) {
                 try {
@@ -171,6 +173,9 @@ public class CacheManager {
         Map<String, Boolean> settings = new HashMap<>();
         List<String> excludedPlayers = new ArrayList<>();
         List<String> killedMobs = new ArrayList<>();
+        boolean allMobsProjectEnabled = false;
+        String currentForceMobName = null;
+        int forceMobTimeLeft = 300;
         Map<String, CachedLocation> positions = new HashMap<>();
         List<String> enabledChallenges = new ArrayList<>();
         Map<String, Object> challengeSettings = new HashMap<>();

@@ -182,9 +182,9 @@ public class SettingsAndProjectListener implements Listener {
         }
 
         // 2. Projekt: Alle Mobs töten
-        if (entity.getKiller() != null) {
+        ProjectManager pm = ChallX.getInstance().getProjectManager();
+        if (entity.getKiller() != null && pm.isEnabled()) {
             Player killer = entity.getKiller();
-            ProjectManager pm = ChallX.getInstance().getProjectManager();
             
             if (pm.getTargetMobs().contains(event.getEntityType())) {
                 if (!pm.getKilledMobs().contains(event.getEntityType())) {

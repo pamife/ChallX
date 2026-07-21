@@ -297,21 +297,39 @@ public final class ChallX extends JavaPlugin {
 
         int killed = projectManager.getKilledMobs().size();
         int total = projectManager.getTargetMobs().size();
+        boolean enabled = projectManager.isEnabled();
 
         ItemStack item = createItem(
                 Material.ZOMBIE_HEAD, 
                 "§a§lAlle Mobs töten", 
                 "§7Töte jeden Mob-Typ in Minecraft.", 
                 "", 
+                "§7Status: " + (enabled ? "§aAktiviert" : "§cDeaktiviert"),
                 "§7Fortschritt: §e" + killed + " / " + total + " Mobs getötet.",
                 "",
-                "§7[Klicke, um eine detaillierte Liste im Chat zu erhalten]"
+                "§7[Linksklick: §eToggeln§7]",
+                "§7[Rechtsklick: §aFortschritt im Chat§7]"
         );
 
-        gui.setButton(13, new GUIButton(item, e -> {
-            player.closeInventory();
-            player.performCommand("moboverview");
+        gui.setButton(11, new GUIButton(item, e -> {
+            if (e.isRightClick()) {
+                player.closeInventory();
+                player.performCommand("moboverview");
+            } else {
+                projectManager.setEnabled(!projectManager.isEnabled());
+                openProjectsGUI(player);
+            }
         }));
+
+        Material paneMaterial = enabled ? Material.GREEN_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
+        String paneName = enabled ? "§aAktiviert" : "§cDeaktiviert";
+        gui.setButton(20, new GUIButton(
+                createItem(paneMaterial, paneName, "§7Klicke zum Umschalten"),
+                e -> {
+                    projectManager.setEnabled(!projectManager.isEnabled());
+                    openProjectsGUI(player);
+                }
+        ));
 
         fillBackground(gui, 3);
         gui.open(player);
