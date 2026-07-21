@@ -102,30 +102,20 @@ public class ForceHeightChallenge extends BaseChallenge {
             public void run() {
                 if (!ChallX.getInstance().getTimerManager().isRunning()) return;
 
-                // Checken, ob Spieler die Höhe erreicht haben
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (ChallX.getInstance().getSettingsManager().isExcluded(p.getUniqueId())) continue;
-                    if (p.getGameMode() == GameMode.SPECTATOR || p.getGameMode() == GameMode.CREATIVE) continue;
-                    if (safePlayers.contains(p.getUniqueId())) continue;
-
-                    if (p.getLocation().getBlockY() == targetHeight) {
-                        safePlayers.add(p.getUniqueId());
-                        p.sendMessage("§a[Force-Height] §2Du bist sicher!");
-                        p.sendTitle("§a§lSicher!", "§eHöhe erreicht.", 5, 20, 5);
-                        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1.5f);
-                    }
-                }
-
                 timeLeft--;
                 if (timeLeft <= 0) {
-                    // Timer abgelaufen: Bestrafen
+                    // Timer abgelaufen: Bestrafen, wenn man nicht genau jetzt auf der Ziel-Höhe ist
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         if (ChallX.getInstance().getSettingsManager().isExcluded(p.getUniqueId())) continue;
                         if (p.getGameMode() == GameMode.SPECTATOR || p.getGameMode() == GameMode.CREATIVE) continue;
 
-                        if (!safePlayers.contains(p.getUniqueId())) {
+                        if (p.getLocation().getBlockY() == targetHeight) {
+                            p.sendMessage("§a[Force-Height] §2Erfolgreich! Du hast die Höhe erreicht.");
+                            p.sendTitle("§a§lÜberlebt!", "§eHöhe erreicht.", 5, 40, 5);
+                            p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1.5f);
+                        } else {
                             p.damage(20.0);
-                            p.sendMessage("§c[Force-Height] Zeit abgelaufen! Du hast die Höhe Y = " + targetHeight + " nicht rechtzeitig erreicht.");
+                            p.sendMessage("§c[Force-Height] Zeit abgelaufen! Du warst zum Ablauf nicht auf der Höhe Y = " + targetHeight + ".");
                         }
                     }
                     bossBar.removeAll();

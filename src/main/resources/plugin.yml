@@ -31,3 +31,6 @@ commands:
     description: Zeigt Battle Ergebnisse.
   skipitem:
     description: Ueberspringt das aktuelle Item.
+  invsee:
+    description: Oeffnet das Inventar eines anderen Spielers.
+    permission: challenges.invsee

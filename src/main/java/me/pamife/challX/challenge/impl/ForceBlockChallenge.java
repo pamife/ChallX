@@ -97,31 +97,21 @@ public class ForceBlockChallenge extends BaseChallenge {
             public void run() {
                 if (!ChallX.getInstance().getTimerManager().isRunning()) return;
 
-                // Checken, ob Spieler auf dem Block stehen
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (ChallX.getInstance().getSettingsManager().isExcluded(p.getUniqueId())) continue;
-                    if (p.getGameMode() == GameMode.SPECTATOR || p.getGameMode() == GameMode.CREATIVE) continue;
-                    if (safePlayers.contains(p.getUniqueId())) continue;
-
-                    Block stand = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
-                    if (stand.getType() == targetBlock) {
-                        safePlayers.add(p.getUniqueId());
-                        p.sendMessage("§a[Force-Block] §2Du bist sicher!");
-                        p.sendTitle("§a§lSicher!", "§eBlock gefunden.", 5, 20, 5);
-                        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1.5f);
-                    }
-                }
-
                 timeLeft--;
                 if (timeLeft <= 0) {
-                    // Timer abgelaufen: Bestrafen
+                    // Timer abgelaufen: Bestrafen, wenn man nicht genau jetzt auf dem Block steht
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         if (ChallX.getInstance().getSettingsManager().isExcluded(p.getUniqueId())) continue;
                         if (p.getGameMode() == GameMode.SPECTATOR || p.getGameMode() == GameMode.CREATIVE) continue;
 
-                        if (!safePlayers.contains(p.getUniqueId())) {
+                        Block stand = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
+                        if (stand.getType() == targetBlock) {
+                            p.sendMessage("§a[Force-Block] §2Erfolgreich! Du standest auf dem Block.");
+                            p.sendTitle("§a§lÜberlebt!", "§eBlock gefunden.", 5, 40, 5);
+                            p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1.5f);
+                        } else {
                             p.damage(20.0); // Sofortiger Tod
-                            p.sendMessage("§c[Force-Block] Zeit abgelaufen! Du hast den Block nicht rechtzeitig gefunden.");
+                            p.sendMessage("§c[Force-Block] Zeit abgelaufen! Du standest zum Ablauf nicht auf dem Block (" + targetBlock.name() + ").");
                         }
                     }
                     bossBar.removeAll();

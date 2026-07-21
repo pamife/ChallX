@@ -55,7 +55,13 @@ public class CommandManager implements CommandExecutor, TabCompleter {
 
             // Dummys/Placeholders
             case "diet":
-                player.sendMessage("§cDie Diät-Challenge ist momentan nicht aktiv.");
+                me.pamife.challX.challenge.impl.DietChallenge diet = 
+                    (me.pamife.challX.challenge.impl.DietChallenge) ChallX.getInstance().getChallengeManager().getChallenge(me.pamife.challX.challenge.impl.DietChallenge.class);
+                if (diet != null && diet.isEnabled()) {
+                    diet.showEatenFoods(player);
+                } else {
+                    player.sendMessage("§cDie Diät-Challenge ist momentan nicht aktiv.");
+                }
                 return true;
             case "joker":
                 player.sendMessage("§cKein Force-Item Battle aktiv.");
@@ -75,6 +81,9 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 }
                 pm.skipItem(player);
                 return true;
+
+            case "invsee":
+                return handleInvsee(player, args);
         }
 
         return false;
@@ -300,9 +309,30 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             list.addAll(Arrays.asList("delete", "share", "list"));
         } else if (cmdName.equals("position") && args.length == 2 && args[0].equalsIgnoreCase("delete")) {
             list.addAll(ChallX.getInstance().getPositionManager().getPositions().keySet());
+        } else if (cmdName.equals("invsee") && args.length == 1) {
+            list.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList());
         }
 
         String lastArg = args[args.length - 1].toLowerCase();
         return list.stream().filter(s -> s.toLowerCase().startsWith(lastArg)).collect(Collectors.toList());
+    }
+
+    private boolean handleInvsee(Player player, String[] args) {
+        if (!player.hasPermission("challenges.invsee")) {
+            player.sendMessage("§cDu hast keine Rechte dafür.");
+            return true;
+        }
+        if (args.length < 1) {
+            player.sendMessage("§cBenutzung: /invsee <Spieler>");
+            return true;
+        }
+        Player target = Bukkit.getPlayer(args[0]);
+        if (target == null) {
+            player.sendMessage("§cSpieler '" + args[0] + "' wurde nicht gefunden.");
+            return true;
+        }
+        player.openInventory(target.getInventory());
+        player.sendMessage("§aInventar von §e" + target.getName() + " §ageöffnet.");
+        return true;
     }
 }

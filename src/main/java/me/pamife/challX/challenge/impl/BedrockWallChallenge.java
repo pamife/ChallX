@@ -74,16 +74,6 @@ public class BedrockWallChallenge extends BaseChallenge {
                     Bukkit.broadcastMessage("§8[Bedrock-Säule] §eDie Säule hat sich formiert und verfolgt dich!");
                 }
 
-                // 1. Alte Säule abbauen
-                int oldX = (int) Math.floor(lastWallX);
-                int oldZ = (int) Math.floor(lastWallZ);
-                for (int y = lastY - 5; y < lastY + 20; y++) {
-                    Block b = target.getWorld().getBlockAt(oldX, y, oldZ);
-                    if (b.getType() == Material.BEDROCK) {
-                        b.setType(Material.AIR);
-                    }
-                }
-
                 // 2. Berechne Vektor zum Spieler
                 double dx = pLoc.getX() - wallX;
                 double dz = pLoc.getZ() - wallZ;

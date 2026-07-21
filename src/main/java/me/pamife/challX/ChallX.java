@@ -83,6 +83,11 @@ public final class ChallX extends JavaPlugin {
         challengeManager.registerChallenge(new ReverseActionsChallenge());
         challengeManager.registerChallenge(new ItemDecayChallenge());
         challengeManager.registerChallenge(new NeverFullHeartsChallenge());
+        challengeManager.registerChallenge(new ItemDamageChallenge());
+        challengeManager.registerChallenge(new SnakeChallenge());
+        challengeManager.registerChallenge(new DietChallenge());
+        challengeManager.registerChallenge(new NoDropChallenge());
+        challengeManager.registerChallenge(new RandomDropChallenge());
 
         // CacheManager als letztes initialisieren, da er andere Manager lädt
         this.cacheManager = new CacheManager();
@@ -95,7 +100,7 @@ public final class ChallX extends JavaPlugin {
 
         // 4. Befehle registrieren
         CommandManager cmdManager = new CommandManager();
-        String[] commands = {"settings", "challenges", "timer", "exclude", "position", "reset", "moboverview", "diet", "joker", "results", "skipitem"};
+        String[] commands = {"settings", "challenges", "timer", "exclude", "position", "reset", "moboverview", "diet", "joker", "results", "skipitem", "invsee"};
         for (String cmd : commands) {
             var pluginCmd = getCommand(cmd);
             if (pluginCmd != null) {
