@@ -14,36 +14,49 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.awt.Color;
 import java.util.Arrays;
+import java.util.List;
 
 public class ThemeManager {
 
+    public enum ThemeCategory {
+        BASTIGHG_ORIGINAL("§c§lORIGINAL BASTIGHG THEMES"),
+        CUSTOM_COLOR("§b§lCUSTOM FARB-THEMES");
+
+        private final String title;
+        ThemeCategory(String title) { this.title = title; }
+        public String getTitle() { return title; }
+    }
+
     public enum Theme {
-        CRAFT_ATTACK_13("CraftAttack 13 (ORI)", "#880e1d", "#ae1024", Material.REDSTONE_BLOCK, "Pulsierendes Dunkelrot/Burgund - BastiGHG CA13 Vibe."),
-        ZICKZACK_V5("ZickZack v5", "#3b9217", "#52f60d", Material.SLIME_BALL, "Pulsierendes Neon-Grün - Der legendäre ZickZack v5 Style."),
-        ZICKZACK_V5_2M("Golden Ruby (2M Special)", "#cf0815", "#ffbe16", Material.GOLD_BLOCK, "Ausbalanciertes Rubinrot & strahlendes Gold."),
-        ZICKZACK_V4("ZickZack v4", "#757aef", "#f452ce", Material.AMETHYST_SHARD, "Pulsierendes Violett-Blau & Neon-Pink Style."),
-        ZICKZACK_V4_BLACK("ZickZack v4 (1.5M Black Edition)", "#ececec", "#787878", Material.POLISHED_BLACKSTONE, "Strahlendes Weiß mit flackernden Grautönen."),
-        
-        // 7 Zusätzliche Farb-Themes
-        OCEAN_CYBERPUNK("Ocean Cyberpunk", "#00f2fe", "#4facfe", Material.PRISMARINE_CRYSTALS, "Strahlendes Cyan & Electric Blue."),
-        SUNSET_FLAME("Sunset Flame", "#ff0844", "#ffb199", Material.FIRE_CHARGE, "Leuchtendes Feuerrot & Koralle."),
-        AMETHYST_VIOLET("Amethyst Violet", "#b224ef", "#7579ff", Material.AMETHYST_BLOCK, "Tiefes Purpur & Mystisches Violett."),
-        EMERALD_FOREST("Emerald Forest", "#11998e", "#38ef7d", Material.EMERALD, "Edles Smaragdgrün & Frische Minze."),
-        MIDNIGHT_OBSIDIAN("Midnight Obsidian", "#232526", "#414345", Material.OBSIDIAN, "Sleekes Dunkelgrau & Silber."),
-        SOLAR_FLARE("Solar Flare", "#f857a6", "#ff5858", Material.MAGMA_BLOCK, "Neon Pink & Magmarot."),
-        ICE_BLIZZARD("Ice Blizzard", "#e0c3fc", "#8ec5fc", Material.PACKED_ICE, "Eisweiß & Himmelsblau.");
+        // --- 1. Original BastiGHG Themes ---
+        CRAFT_ATTACK_13("CraftAttack 13 (ORI)", "#880e1d", "#ae1024", Material.REDSTONE_BLOCK, ThemeCategory.BASTIGHG_ORIGINAL, "Pulsierendes Dunkelrot/Burgund - BastiGHG CA13 Vibe."),
+        ZICKZACK_V5("ZickZack v5", "#3b9217", "#52f60d", Material.SLIME_BALL, ThemeCategory.BASTIGHG_ORIGINAL, "Pulsierendes Neon-Grün - Der legendäre ZickZack v5 Style."),
+        ZICKZACK_V5_2M("Golden Ruby (2M Special)", "#cf0815", "#ffbe16", Material.GOLD_BLOCK, ThemeCategory.BASTIGHG_ORIGINAL, "Ausbalanciertes Rubinrot & strahlendes Gold."),
+        ZICKZACK_V4("ZickZack v4", "#757aef", "#f452ce", Material.AMETHYST_SHARD, ThemeCategory.BASTIGHG_ORIGINAL, "Pulsierendes Violett-Blau & Neon-Pink Style."),
+        ZICKZACK_V4_BLACK("ZickZack v4 (1.5M Black Edition)", "#ececec", "#787878", Material.POLISHED_BLACKSTONE, ThemeCategory.BASTIGHG_ORIGINAL, "Strahlendes Weiß mit flackernden Grautönen."),
+
+        // --- 2. Custom Farb-Themes ---
+        OCEAN_CYBERPUNK("Ocean Cyberpunk", "#00f2fe", "#4facfe", Material.PRISMARINE_CRYSTALS, ThemeCategory.CUSTOM_COLOR, "Strahlendes Cyan & Electric Blue."),
+        SUNSET_FLAME("Sunset Flame", "#ff0844", "#ffb199", Material.FIRE_CHARGE, ThemeCategory.CUSTOM_COLOR, "Leuchtendes Feuerrot & Koralle."),
+        AMETHYST_VIOLET("Amethyst Violet", "#b224ef", "#7579ff", Material.AMETHYST_BLOCK, ThemeCategory.CUSTOM_COLOR, "Tiefes Purpur & Mystisches Violett."),
+        EMERALD_FOREST("Emerald Forest", "#11998e", "#38ef7d", Material.EMERALD, ThemeCategory.CUSTOM_COLOR, "Edles Smaragdgrün & Frische Minze."),
+        MIDNIGHT_OBSIDIAN("Midnight Obsidian", "#232526", "#414345", Material.OBSIDIAN, ThemeCategory.CUSTOM_COLOR, "Sleekes Dunkelgrau & Silber."),
+        SOLAR_FLARE("Solar Flare", "#f857a6", "#ff5858", Material.MAGMA_BLOCK, ThemeCategory.CUSTOM_COLOR, "Neon Pink & Magmarot."),
+        ICE_BLIZZARD("Ice Blizzard", "#e0c3fc", "#8ec5fc", Material.PACKED_ICE, ThemeCategory.CUSTOM_COLOR, "Eisweiß & Himmelsblau.");
 
         private final String displayName;
         private final String color1;
         private final String color2;
         private final Material iconMaterial;
+        private final ThemeCategory category;
         private final String description;
 
-        Theme(String displayName, String color1, String color2, Material iconMaterial, String description) {
+        Theme(String displayName, String color1, String color2, Material iconMaterial, ThemeCategory category, String description) {
             this.displayName = displayName;
             this.color1 = color1;
             this.color2 = color2;
             this.iconMaterial = iconMaterial;
+            this.category = category;
             this.description = description;
         }
 
@@ -51,6 +64,7 @@ public class ThemeManager {
         public String getColor1() { return color1; }
         public String getColor2() { return color2; }
         public Material getIconMaterial() { return iconMaterial; }
+        public ThemeCategory getCategory() { return category; }
         public String getDescription() { return description; }
     }
 
@@ -64,12 +78,9 @@ public class ThemeManager {
         this.currentTheme = theme;
     }
 
-    /**
-     * Erzeugt einen ultra-smoothen, pulsierenden Farbverlauf für die Timer-Actionbar.
-     */
     public String formatTimer(String timeStr) {
         long timeMs = System.currentTimeMillis();
-        double factor1 = (Math.sin(timeMs / 600.0) + 1.0) / 2.0; // Slow smooth sine wave
+        double factor1 = (Math.sin(timeMs / 600.0) + 1.0) / 2.0;
         double factor2 = (Math.sin((timeMs + 300) / 600.0) + 1.0) / 2.0;
 
         String hexA = interpolateHex(currentTheme.getColor1(), currentTheme.getColor2(), factor1);
@@ -98,42 +109,67 @@ public class ThemeManager {
     }
 
     public void openThemeGUI(Player player) {
-        CustomGUI gui = new CustomGUI(Component.text("§6§lSelect Plugin Theme"), 4);
+        CustomGUI gui = new CustomGUI(Component.text("§6§lSelect Plugin Theme"), 6);
 
-        Theme[] themes = Theme.values();
-        for (int i = 0; i < themes.length; i++) {
-            Theme t = themes[i];
-            boolean selected = (t == currentTheme);
+        // Header 1: BastiGHG Original
+        gui.setButton(1, new GUIButton(createItem(Material.REDSTONE, "§c§l★ BASTIGHG ORIGINALE ★", "§7Klassische Themes von BastiGHG Projekten."), e -> {}));
 
-            ItemStack item = new ItemStack(t.getIconMaterial());
-            ItemMeta meta = item.getItemMeta();
-            if (meta != null) {
-                meta.setDisplayName("§e§l" + t.getDisplayName());
-                meta.setLore(Arrays.asList(
-                        "§7" + t.getDescription(),
-                        "§7Startfarbe: " + t.getColor1() + " | Endfarbe: " + t.getColor2(),
-                        "",
-                        selected ? "§a§l[AKTUELLES THEME]" : "§7[Klicke zum Aktivieren]"
-                ));
-                item.setItemMeta(meta);
-            }
-
-            final Theme selectedTheme = t;
-            gui.setButton(i, new GUIButton(item, e -> {
-                setCurrentTheme(selectedTheme);
-                player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.2f);
-                player.sendMessage(MiniMessage.miniMessage().deserialize(formatPrefix("Theme") + "<green>Theme gewechselt auf: <bold>" + selectedTheme.getDisplayName() + "</bold>"));
-                openThemeGUI(player);
-            }));
+        // BastiGHG Original Items (Slots 10 bis 14)
+        List<Theme> bastiThemes = Arrays.stream(Theme.values()).filter(t -> t.getCategory() == ThemeCategory.BASTIGHG_ORIGINAL).toList();
+        for (int i = 0; i < bastiThemes.size(); i++) {
+            Theme t = bastiThemes.get(i);
+            addThemeButton(gui, player, 10 + i, t);
         }
 
-        gui.setButton(31, new GUIButton(
+        // Trennzeile (Slots 18 bis 26)
+        ItemStack separator = createItem(Material.BLACK_STAINED_GLASS_PANE, "§8--------------------");
+        for (int s = 18; s <= 26; s++) {
+            gui.setButton(s, new GUIButton(separator, e -> {}));
+        }
+
+        // Header 2: Custom Farb-Themes
+        gui.setButton(28, new GUIButton(createItem(Material.GLOWSTONE_DUST, "§b§l🎨 CUSTOM FARB-THEMES 🎨", "§7Moderne, stylische Farb-Themes."), e -> {}));
+
+        // Custom Color Items (Slots 37 bis 43)
+        List<Theme> customThemes = Arrays.stream(Theme.values()).filter(t -> t.getCategory() == ThemeCategory.CUSTOM_COLOR).toList();
+        for (int i = 0; i < customThemes.size(); i++) {
+            Theme t = customThemes.get(i);
+            addThemeButton(gui, player, 37 + i, t);
+        }
+
+        // Zurück Button
+        gui.setButton(49, new GUIButton(
                 createItem(Material.BARRIER, "§cZurück zum Hauptmenü"),
                 e -> ChallX.getInstance().openSettingsGUI(player)
         ));
 
         fillBackground(gui);
         gui.open(player);
+    }
+
+    private void addThemeButton(CustomGUI gui, Player player, int slot, Theme t) {
+        boolean selected = (t == currentTheme);
+
+        ItemStack item = new ItemStack(t.getIconMaterial());
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName("§e§l" + t.getDisplayName());
+            meta.setLore(Arrays.asList(
+                    "§8Kategorie: " + t.getCategory().getTitle(),
+                    "§7" + t.getDescription(),
+                    "§7Start: " + t.getColor1() + " | Ende: " + t.getColor2(),
+                    "",
+                    selected ? "§a§l[AKTUELLES THEME]" : "§7[Klicke zum Aktivieren]"
+            ));
+            item.setItemMeta(meta);
+        }
+
+        gui.setButton(slot, new GUIButton(item, e -> {
+            setCurrentTheme(t);
+            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.2f);
+            player.sendMessage(MiniMessage.miniMessage().deserialize(formatPrefix("Theme") + "<green>Theme gewechselt auf: <bold>" + t.getDisplayName() + "</bold>"));
+            openThemeGUI(player);
+        }));
     }
 
     private ItemStack createItem(Material material, String name, String... lore) {
@@ -149,7 +185,7 @@ public class ThemeManager {
 
     private void fillBackground(CustomGUI gui) {
         ItemStack filler = createItem(Material.GRAY_STAINED_GLASS_PANE, "§7 ");
-        for (int i = 0; i < 36; i++) {
+        for (int i = 0; i < 54; i++) {
             if (gui.getButton(i) == null) {
                 gui.setButton(i, new GUIButton(filler, e -> {}));
             }

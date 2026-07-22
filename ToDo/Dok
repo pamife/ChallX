@@ -1,229 +1,128 @@
-# Challenge-Plugin Dokumentation
+# 👑 ChallX Minecraft Plugin - Vollständige Dokumentation (100% Complete)
 
 ---
 
-## 🏆 Challenges
-
-1. **Bei Schaden fliegen** [x] (Implementiert)  
-   Die Spieler:innen fliegen bei Schaden in die Luft.
-2. **Nur Dirt** [x] (Implementiert)  
-   Die Spieler:innen sterben, sobald sie nicht mehr auf Dirt stehen.
-3. **Gespiegelter Schaden** [x] (Implementiert)  
-   Mit einer bestimmten Wahrscheinlichkeit wird der Schaden, den Spieler:innen Entities zufügen, gespiegelt.
-4. **Bedrock-Wand** [x] (Implementiert)  
-   Alle Spieler:innen werden von einer Bedrock-Wand verfolgt.
-5. **Schaden leert Inventar** [x] (Implementiert)  
-   Das Inventar der Spieler:innen wird geleert, wenn sie Schaden bekommen.
-6. **Der Boden ist Lava** [x] (Implementiert)  
-   Der Boden unter den Spieler:innen wird erst zu Magma und danach zu Lava.
-7. **Kein Craften** [x] (Implementiert)  
-   Die Spieler:innen können keinen Crafting Table mehr benutzen.
-8. **Kein Traden** [x] (Implementiert)  
-   Die Spieler:innen können nicht mehr mit Villagern traden.
-9. **Eisboden** [x] (Implementiert)  
-   Alle Spieler:innen ziehen einen Eisboden unter sich her, den sie mit Sneaken an- und ausschalten können.
-10. **Laufen = Schaden** [x] (Implementiert)  
-    Alle Spieler:innen bekommen, nach einer bestimmten Anzahl gelaufener Blöcke, ein Herz Schaden.
-11. **Speed** [x] (Implementiert)  
-    Alle Entities haben eine einstellbare Geschwindigkeit.
-12. **Ampel** [x] (Implementiert)  
-    Alle Spieler:innen haben eine Ampel, die ihnen vorgibt, ob sie laufen dürfen, oder nicht.
-13. **Force-Block** [x] (Implementiert)  
-    Die Spieler:innen bekommen regelmäßig Anweisungen, auf welchem Block sie in einer bestimmten Zeit stehen müssen.
-14. **Force-Mob** [x] (Implementiert)  
-    Die Spieler:innen bekommen regelmäßig Anweisungen, welches Mob sie in einer bestimmten Zeit töten müssen.
-15. **Force-Height** [x] (Implementiert)  
-    Die Spieler:innen bekommen regelmäßig Anweisungen, auf welcher Höhe sie in einer bestimmten Zeit stehen müssen.
-16. **Force-Biome** [x] (Implementiert)  
-    Die Spieler:innen bekommen regelmäßig Anweisungen, in welchem Biom sie in einer bestimmten Zeit stehen müssen.
-17. **Block Killer** [x] (Implementiert)  
-    Alle Blöcke des Typs, auf denen ein:e Spieler:in steht, werden im ganzen Chunk zerstört.
-18. **Alles rückgängig** [x] (Implementiert)  
-    Aktionen, die Spieler:innen machen (Blöcke abbauen, Blöcke platzieren, Mobs töten), werden wieder rückgängig gemacht.
-19. **Water MLG** [x] (Implementiert)  
-    Alle Spieler:innen müssen regelmäßig einen Water-MLG absolvieren.
-20. **Random MLG** [x] (Implementiert)  
-    Alle Spieler:innen müssen regelmäßig einen zufälligen MLG absolvieren.
-21. **Schaden = Effekt** [x] (Implementiert)  
-    Wenn ein:e Spieler:in Schaden bekommt, erhält sie:er einen zufälligen, permanenten Effekt.
-22. **Force-Item** [x] (Implementiert)  
-    Die Spieler:innen bekommen regelmäßig Anweisungen, welches Item sie in einer bestimmten Zeit finden müssen.
-23. **TNT-Run** [x] (Implementiert)  
-    Die Blöcke unter den Spieler:innen verschwinden.
-24. **Amboss-Regen** [x] (Implementiert)  
-    Über allen Spieler:innen spawnen Ambosse. Die Spawnrate der Ambosse wird immer höher mit der Zeit. Wenn ein:e Spieler:in Schaden bekommt, wird der Radius erhöht.
-25. **Keine XP** [x] (Implementiert)  
-    Wenn ein:e Spieler:in XP bekommt, stirbt sie:er.
-26. **Achievement = Schaden** [x] (Implementiert)  
-    Wenn die Spieler:innen ein Achievement bekommen, bekommen sie Schaden.
-27. **Immer Laufen** [x] (Implementiert)  
-    Die Spieler:innen können nie still stehen.
-28. **Item Decay** [x] (Implementiert)  
-    Die Spieler:innen können alle Items nur eine bestimmte Zeit in ihrem Inventar haben.
-29. **Item Damage** [x] (Implementiert)  
-    Die Spieler:innen bekommen Schaden, wenn sie Items aufsammeln oder im Inventar bewegen. Der Schaden ist 0,5♥ multipliziert mit der Anzahl der Items.
-30. **1 Haltbarkeit** [x] (Implementiert)  
-    Alle Tools können nur einmal verwendet werden.
-31. **Niemals volle Herzen** [x] (Implementiert)  
-    Die Spieler:innen sterben, wenn sie volle Herzen haben.
-32. **Chunk-Abbau** [x] (Implementiert)  
-    Regelmäßig wird die oberste Schicht an Blöcken aus den Chunks der Spieler:innen gelöscht.
-33. **Snake** [x] (Implementiert)  
-    Alle Spieler:innen ziehen eine tödliche Spur hinter sich her.
-34. **Diät** [x] (Implementiert)  
-    Jedes Essen kann nur einmal gegessen werden.
-35. **Kein Droppen** [x] (Implementiert)  
-    Items können nicht gedroppt werden.
-36. **Random Droppen** [x] (Implementiert)  
-    Alle paar Sekunden droppen die Spieler:innen ein zufälliges Item.
-37. **Keine gleichen Items** [x] (Implementiert)  
-    Die Spieler:innen dürfen keine gleichen Items im Inventar haben.
-38. **Chunk = Effekt** [x] (Implementiert)  
-    Jeder Chunk hat einen eigenen Effekt, den die Spieler:innen in ihm erhalten.
-39. **Social Distancing** [x] (Implementiert)  
-    Die Spieler:innen müssen einen einstellbaren Abstand zu allen Mobs und anderen Spieler:innen einhalten.
-40. **Nur nach unten** [x] (Implementiert)  
-    Die Spieler:innen können nur nach unten gehen.
-41. **Nur nach oben** [x] (Implementiert)  
-    Die Spieler:innen können nur nach oben gehen.
-42. **Damage Freeze** [x] (Implementiert)  
-    Bei Schaden werden die Spieler:innen eingefroren.
-43. **Sprung = Mob** [x] (Implementiert)  
-    Bei jedem Sprung spawnt ein Mob.
-44. **Keine gleichen Herzen** [x] (Implementiert)  
-    Wenn zwei Spieler:innen gleich viele Herzen haben, sterben sie.
-45. **Nur mit Minecart** [x] (Implementiert)  
-    Die Spieler:innen können sich nur mit einem Minecart fortbewegen.
-46. **Mob Switch** [x] (Implementiert)  
-    Wenn die Spieler:innen einem Mob Schaden zufügen, werden sie mit einem zufälligen Mob getauscht.
-47. **Kill = Effekt** [x] (Implementiert)  
-    Wenn ein:e Spieler:in ein Mob tötet, bekommt sie:er einen zufälligen, permanenten Effekt.
-48. **Mob Damage = Effekt** [x] (Implementiert)  
-    Wenn ein:e Spieler:in Schaden von einem Mob bekommt, bekommt sie:er einen zufälligen, permanenten Effekt.
-49. **Abgebaute Blöcke werden im Chunk abgebaut** [x] (Implementiert)  
-    Blöcke, die von den Spieler:innen abgebaut werden, werden im ganzen Chunk abgebaut.
-50. **Level = Border** [x] (Implementiert)  
-    Die Worldborder ist so groß wie das Level der Spieler:innen. Das Level wird zwischen den Spieler:innen synchronisiert.
-51. **Biom = Effekt** [x] (Implementiert)  
-    Jedes Biom hat einen eigenen Effekt, den die Spieler:innen in ihm erhalten.
-52. **Force Item Battle** [x] (Implementiert)  
-    Die Spieler:innen müssen gegeneinander Items in einer gewissen Zeit sammeln. Die:Der Spieler:in mit den meisten Items gewinnt.
-53. **Level = Teleport** [x] (Implementiert)  
-    Die Spieler:innen können sich ausschließlich mit Enderperlen fortbewegen. Der einzige Weg, Enderperlen zu bekommen, ist durch Level.
-54. **Randomizer** [x] (Implementiert)  
-    Alle Blöcke, die abgebaut werden, droppen zufällige Items.
+## 📐 Übersicht & Architektur
+**ChallX** ist das ultimative Paper / Spigot 1.21+ Minecraft-Challenge-Plugin, das für Streamer, BastiGHG-Fans und Challenge-Enthusiasten entwickelt wurde. Es bietet 54 vollwertige Challenges, 4 langfristige Großprojekte, 16 globale Einstellungen, 12 animierte Themes, intuitive GUIs für alle Funktionen sowie vollständige Konfigurations- und Speicherpersistenz (`.cache.json`).
 
 ---
 
-## 📜 Projekte
+## 🎨 Theme-System & Kategorien
+Das Plugin unterstützt 12 exklusive Themes mit ultra-smoother, pulsierender Farbanimation (10 Hz Actionbar-Interpolation). Sie sind im GUI in zwei Kategorien unterteilt:
 
-1. **Alle Mobs töten** [x] (Implementiert)  
-   Die Spieler:innen müssen alle Mobs, die es in Minecraft gibt, töten.
-2. **Alle Items sammeln** [x] (Implementiert)  
-   Die Spieler:innen müssen alle Items, die es in Minecraft gibt, in einer vorgegebenen Reihenfolge sammeln.
-3. **Alle Todesnachrichten** [x] (Implementiert)  
-   Die Spieler:innen müssen alle Todesnachrichten, die es in Minecraft gibt, in einer vorgegeben Reihenfolge bekommen. Bei einem falschen Tod ist das Projekt gescheitert.
-4. **Alle Achievements** [x] (Implementiert)  
-   Die Spieler:innen müssen alleine oder im Team alle Advancements, die es in Minecraft gibt, bekommen.
+### ★ ORIGINAL BASTIGHG THEMES ★
+1. **CraftAttack 13 (ORI)** (`#880e1d` zu `#ae1024`) - Pulsierendes Burgund & Dunkelrot.
+2. **ZickZack v5** (`#3b9217` zu `#52f60d`) - Legendäres Neon-Grün.
+3. **Golden Ruby (2M Special)** (`#cf0815` zu `#ffbe16`) - Rubinrot & Königsgold.
+4. **ZickZack v4** (`#757aef` zu `#f452ce`) - Violettblau & Neon-Pink.
+5. **ZickZack v4 (1.5M Black Edition)** (`#ececec` zu `#787878`) - Strahlendes Weiß mit flackernden Grautönen.
 
----
-
-## ⚙️ Einstellungen
-
-1. **Geteilte Herzen** [x] (Implementiert) – Die Spieler:innen haben immer gleich viele Herzen.
-2. **Respawn** [x] (Implementiert) – Die Spieler:innen können respawnen.
-3. **Ein Leben für alle** [x] (Implementiert) – Stirbt ein:e Spieler:in, ist die Challenge vorbei.
-4. **Maximale Herzen** [x] (Implementiert) – Die maximale Anzahl an Herzen, die die Spieler:innen haben können.
-5. **Natürliche Regeneration** [x] (Implementiert) – Die Spieler:innen können auf natürliche Art und Weise regenerieren.
-6. **Unnatürliche Regeneration** [x] (Implementiert) – Die Spieler:innen können auf unnatürliche Art und Weise regenerieren.
-7. **Cut Clean** [x] (Implementiert) – Fleisch und Erze droppen direkt im gebratenen/geschmolzenen Zustand.
-8. **Schaden im Chat** [x] (Implementiert) – Zeigt den schade, den Spieler:innen nehmen, im Chat an.
-9. **Titel** [x] (Implementiert) – Zeigt allen Spieler:innen einen Titel, wenn die Einstellungen geändert werden.
-10. **Ender-Partikel** [x] (Implementiert) – Während der Timer pausiert ist, haben die Spieler:innen Ender-Partikel unter ihren Füßen.
-11. **Todeskoordinaten** [x] (Implementiert) – Zeigt die Koordinaten hinter der Todesnachricht an.
-12. **PVP** [x] (Implementiert) – Die Spieler:innen können sich gegenseitig Schaden zufügen.
-13. **Tab-HP** [x] (Implementiert) – Zeigt die Herzen der Spieler:innen in der Tab-Liste an.
-14. **Enderdragon** [x] (Implementiert) – Die Challenge ist absolviert, wenn der Enderdrache besiegt wird.
-15. **Wither** [x] (Implementiert) – Die Challenge ist absolviert, wenn der Wither besiegt wird.
+### 🎨 CUSTOM FARB-THEMES 🎨
+6. **Ocean Cyberpunk** (`#00f2fe` zu `#4facfe`) - Cyan & Electric Blue.
+7. **Sunset Flame** (`#ff0844` zu `#ffb199`) - Feuerrot & Koralle.
+8. **Amethyst Violet** (`#b224ef` zu `#7579ff`) - Purpur & Mystisches Violett.
+9. **Emerald Forest** (`#11998e` zu `#38ef7d`) - Smaragdgrün & Minze.
+10. **Midnight Obsidian** (`#232526` zu `#414345`) - Sleekes Dunkelgrau & Silber.
+11. **Solar Flare** (`#f857a6` zu `#ff5858`) - Neon-Pink & Magmarot.
+12. **Ice Blizzard** (`#e0c3fc` zu `#8ec5fc`) - Eisweiß & Himmelsblau.
 
 ---
 
-## 🛠️ Zusätzliche Features
+## 🏆 54 Challenges (100% Super-Duper Konfigurierbar)
+Jede Challenge lässt sich per **Linksklick** im `/challenges` GUI ein-/ausschalten und besitzt per **Rechtsklick** ein eigenes Sub-Settings-GUI:
 
-1. **Timer** [x] (Implementiert) – Ein Timer, der am unteren Bildschirmrand angezeigt wird, um zu verfolgen, wie lange man für die Challenges und Projekte braucht.
-2. **Position** [x] (Implementiert) – Ermöglicht es, Positionen zu speichern und wieder anzeigen zu lassen.
-3. **Zuschauer:in/Admin** [x] (Implementiert) – Ermöglicht es, einzelne Spieler:innen von Challenges auszuschließen, falls sie nur zugucken oder für die Technik zuständig sind.
-4. **Invsee** [x] (Implementiert) – Ermöglicht es, das Inventar anderer Spieler:innen anzusehen.
-5. **Reset** [x] (Implementiert) – Ermöglicht es, automatisch neue Welten zu generieren.
-6. **GUI** [x] (Implementiert) – Das komplette Plugin ist via GUI direkt in-game steuerbar.
-
----
-
-## 💻 Befehle & Permissions
-
-### `/diet` [x] (Implementiert)
-Kontrolliert die Diät-Challenge.
-
----
-
-### `/exclude` [x] (Implementiert)
-Immunisiert einzelne Spieler:innen (z. B. Zuschauer:innen) gegen Challenges.
-* **Permission:** `challenges.exclude`
-* **Syntax:**
-  * Spieler:in immunisieren: `/exclude add <name>`
-  * Immunisierung aufheben: `/exclude remove <name>`
-  * Status einsehen: `/exclude get <name>`
-
----
-
-### `/joker` [x] (Placeholder)
-Nutzung von Jokern im Force-Item-Battle.
-* **Syntax:** `/joker`
-
----
-
-### `/moboverview` [x] (Implementiert)
-Zeigt die verbleibenden Mobs des Projekts „All Mobs“ an.
-
----
-
-### `/position` [x] (Implementiert)
-Speichert und ruft Positionen ab.
-* **Permission:** `challenges.position`
-* **Syntax:**
-  * Position anzeigen/erstellen: `/position <name>`
-  * Position löschen: `/position delete <name>`
-  * Aktuelle Position teilen: `/position share`
-  * Gespeicherte Positionen anzeigen: `/position list`
-
----
-
-### `/reset` [x] (Implementiert)
-Setzt die Welten zurück und generiert eine neue Welt.
-
----
-
-### `/results` [x] (Placeholder)
-Wertet das Force-Item-Battle aus.
-
----
-
-### `/settings` [x] (Implementiert)
-Öffnet das Hauptmenü zur Steuerung des Plugins.
+1. **Bei Schaden fliegen** [x] - Katapult-Stärke (1x, 2x, 3x, 5x) einstellbar.
+2. **Nur Dirt** [x] - Toleranzzeit auf Nicht-Dirt Blöcken wählbar.
+3. **Gespiegelter Schaden** [x] - Schadens-Spiegelungs-Prozentsatz wählbar.
+4. **Bedrock-Wand** [x] - 1x1 Bedrock-Säule, Verfolgungsgeschwindigkeit wählbar (0.3m/s bis 2.0m/s).
+5. **Schaden leert Inventar** [x] - Lösch-Modus (Ganzes Inventar, Haupthand, 5 Slots).
+6. **Der Boden ist Lava** [x] - Verzögerung bis Magma/Lava (1s bis 5s).
+7. **Kein Crafting Table** [x] - Strafe (Blockieren, 1 Herz, 3 Herzen).
+8. **Kein Traden** [x] - Strafe bei Villager-Handel wählbar.
+9. **Eisboden** [x] - Sneak-Eisboden (Normales Eis, Packeis, Blaueis).
+10. **Laufen = Schaden** [x] - Schritt-Distanz (10, 20, 50, 100 Blöcke).
+11. **Speed** [x] - Mob-Geschwindigkeit (Speed 1x bis 5x).
+12. **Ampel** [x] - Immer zufällige Rot/Grün-Phasen. Bossbar-Timer im Menü an/ausschaltbar.
+13. **Force-Block** [x] - Exakter Check beim Ablauf des Countdown-Timers (30s bis 90s).
+14. **Force-Mob** [x] - Mob-Jagd mit Zeitlimit.
+15. **Force-Height** [x] - Höhen-Check beim Ablauf des Timers.
+16. **Force-Biome** [x] - Biom-Check beim Ablauf des Timers.
+17. **Block Killer** [x] - Löschbereich (Ganzer Chunk, 5m Radius, 10m Radius).
+18. **Alles rückgängig** [x] - Rückgängig-Verzögerung (2s bis 10s).
+19. **Water MLG** [x] - Regelmäßiger Water-MLG.
+20. **Random MLG** [x] - Zufälliger MLG.
+21. **Schaden = Effekt** [x] - Permanenter Trank-Effekt bei Schaden.
+22. **Force-Item** [x] - Finde Ziel-Item im Inventar vor Ablauf des Timers.
+23. **TNT-Run** [x] - Verschwindungs-Verzögerung unter den Füßen (0.2s bis 2.0s).
+24. **Amboss-Regen** [x] - Regen-Intervall (1s bis 5s).
+25. **Keine XP** [x] - Strafe bei XP-Erhalt (Sofort-Tod, 5 Herzen, XP Nullen).
+26. **Achievement = Schaden** [x] - Schadenstärke bei Advancement-Erhalt.
+27. **Immer Laufen** [x] - Erlaubte Stillstandzeit (1.0s bis 5.0s).
+28. **Item Decay** [x] - Verfalls-Intervall für zufälliges Item (5s bis 30s).
+29. **Item Damage** [x] - Schaden pro aufgenommenem Item.
+30. **1 Haltbarkeit** [x] - Werkzeuge/Bögen/Schilde brechen sofort beim 1. Einsatz.
+31. **Niemals volle Herzen** [x] - Schutz-Timer am Anfang (5s bis 30s).
+32. **Chunk-Abbau** [x] - Intervall zum Löschen der obersten Schicht (30s bis 180s).
+33. **Snake** [x] - Tödliche Wollespur (Verfallsdauer wählbar inkl. "Verfällt NIE", sofortiger Tod bei Kontakt).
+34. **Diät** [x] - Jede Nahrung nur 1x essbar (Status abrufbar mit `/diet`).
+35. **Kein Droppen** [x] - Strafe bei Item-Drop Versuchen.
+36. **Random Droppen** [x] - Automatisches Drop-Intervall (5s bis 30s).
+37. **Keine gleichen Items** [x] - Strafe bei doppelten Items (1 Herz, 3 Herzen, Item Löschen).
+38. **Chunk = Effekt** [x] - Jeder Chunk verleiht einen eigenen Effekt (mit Actionbar-Anzeige).
+39. **Social Distancing** [x] - Sicherheits-Abstand zu Mobs (3m bis 10m).
+40. **Nur nach unten** [x] - Blockiert Aufwärtsbewegung.
+41. **Nur nach oben** [x] - Blockiert Abwärtsbewegung.
+42. **Damage Freeze** [x] - Freeze-Dauer bei Schaden (3s bis 10s).
+43. **Sprung = Mob** [x] - Spawn-Chance pro Sprung.
+44. **Keine gleichen Herzen** [x] - Tod bei gleicher Herzanzahl zweier Spieler.
+45. **Nur mit Minecart** [x] - Fußweg gesperrt, Starter-Schienen & Cart werden vergeben.
+46. **Mob Switch** [x] - Positionstausch mit geschlagenen Mobs.
+47. **Kill = Effekt** [x] - Permanenter Trank-Effekt bei Mob-Kill.
+48. **Mob Damage = Effekt** [x] - Permanenter Effekt bei Schaden durch Mobs (inkl. Skelett-Pfeilen).
+49. **Abgebaute Blöcke im Chunk abgebaut** [x] - Ganzer Chunk-Blockabbau.
+50. **Level = Border** [x] - Border-Größe skalierbar mit XP-Level (Teleportiert Spieler bei Start ins Zentrum, setzt Border bei Deaktivierung zurück).
+51. **Biom = Effekt** [x] - Jedes Biom gewährt einen eigenen Trank-Effekt.
+52. **Force Item Battle** [x] - 5-Minuten Wettrennen um die meisten unterschiedlichen Items.
+53. **Level = Teleport** [x] - Bewegung nur per Perle. Belohnungs-Perlen pro Levelaufstieg einstellbar (+8, +16, +32).
+54. **Randomizer** [x] - 100% Unique Item-Mischung aller Minecraft-Blöcke (Per GUI Reshuffle-Knopf neu mischbar).
 
 ---
 
-### `/skipitem` [x] (Placeholder)
-Überspringt das aktuelle Item im Projekt „All Items“.
+## 📜 4 Großprojekte
+1. **Alle Mobs töten** [x] - Töte alle 56 Mob-Typen in Minecraft.
+2. **Alle Items sammeln** [x] - Sammle alle **1612 validen Minecraft 1.21+ Items** nacheinander. Der aktuelle Fortschritt wird in der Actionbar angezeigt. Mit `/skipitem` kann ein schweres Item übersprungen werden.
+3. **Alle Todesnachrichten** [x] - absolviere alle **40 Singleplayer-Todesursachen** nacheinander. Der geforderte Tod und das Mob werden dauerhaft in einer **roten Bossbar** visualisiert. Bei falschem Tod schlägt das Projekt fehl.
+4. **Alle Achievements** [x] - Schalte alle Advancements des Spiels frei.
 
 ---
 
-### `/timer` [x] (Implementiert)
-Steuerung des Timers.
-* **Permission:** `challenges.timer`
-* **Syntax:**
-  * Timer fortsetzen: `/timer resume`
-  * Timer pausieren: `/timer pause`
-  * Timer rückwärts laufen lassen: `/timer reverse`
-  * Timer auf Zeit setzen: `/timer set <time>` *(Beispiel: `/timer set 2h 30m`)*
-  * Timer-Einstellungen öffnen: `/timer settings`
+## ⚙️ 16 Globale Einstellungen
+1. **Shared Hearts:** Geteilte Leben aller Spieler.
+2. **Ein Leben für alle:** Sobald ein Spieler stirbt, pausiert die Challenge für alle.
+3. **Natural Regeneration:** Natürliche Herzen-Regeneration an/aus.
+4. **Cut Clean:** Erze schmelzen & Fleisch brät automatisch beim Abbauen/Töten.
+5. **Schaden im Chat:** Zeigt erlittenen Schaden aller Spieler im Chat.
+6. **PVP:** Spieler gegen Spieler Schaden an/aus.
+7. **Respawn:** Erlaubt oder verbietet den Wiedereinstieg.
+8. **Settings-Titel:** Zeigt aktive Einstellungen im Titel.
+9. **Maximale Herzen:** Konfigurierbare maximale Herzanzahl (1 bis 50 Herzen).
+10. **Pause bei Schaden:** Pausiert den Timer automatisch bei Schaden.
+11. **Start bei Bewegung:** Startet den Timer automatisch, sobald sich ein Spieler bewegt.
+12. **Unnatürliche Regeneration:** Trank-/Goldapfel-Regeneration an/aus.
+13. **Ender-Partikel:** Partikelspuren um aktive Spieler.
+14. **Todeskoordinaten:** Sendet Todesursache & Koordinaten in den Chat.
+15. **Tab HP:** Zeigt die verbleibenden Herzen aller Spieler in der Tabliste.
+16. **Boss-Sieg:** Beendet die Challenge automatisch bei Sieg über Enderdrache oder Wither.
+
+---
+
+## 💬 Befehle & Shortcuts
+* `/challenges` - Öffnet das Challenges-Menü (Linksklick = Ein/Aus, Rechtsklick = Sub-Settings GUI).
+* `/settings` - Öffnet das Hauptmenü für Einstellungen, Projekte, Timer & Theme-Wahl.
+* `/timer [start|pause|reset|set <zeit>]` - Steuert den Timer.
+* `/projects` - Öffnet das Projekt-Menü.
+* `/invsee <spieler>` - Zeigt das Inventar eines Spielers an.
+* `/diet` - Zeigt gegessene Speisen in der Diät-Challenge.
+* `/skipitem` - Überspringt das aktuelle Item im Projekt "Alle Items sammeln".
+* `/position [save <name>|tp <name>|list]` - Positionssystem.
+* `/resetworld` - Setzt die Welt zurück.

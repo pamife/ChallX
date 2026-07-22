@@ -49,14 +49,17 @@ public class ProjectManager {
     // --- 2. Alle Items sammeln ---
     private boolean itemsEnabled = false;
     private int currentItemIndex = 0;
-    private static final List<Material> TARGET_ITEMS = Arrays.asList(
-            Material.DIRT, Material.COBBLESTONE, Material.OAK_LOG, Material.COAL, Material.IRON_INGOT,
-            Material.GOLD_INGOT, Material.REDSTONE, Material.LAPIS_LAZULI, Material.DIAMOND, Material.OBSIDIAN,
-            Material.NETHERRACK, Material.SOUL_SAND, Material.GLOWSTONE_DUST, Material.BLAZE_ROD, Material.ENDER_PEARL,
-            Material.NETHERITE_SCRAP, Material.NETHERITE_INGOT, Material.APPLE, Material.BREAD, Material.COOKED_BEEF,
-            Material.GOLDEN_APPLE, Material.ENCHANTED_GOLDEN_APPLE, Material.MILK_BUCKET, Material.SHIELD, Material.BOW,
-            Material.CROSSBOW, Material.TRIDENT, Material.ELYTRA, Material.TOTEM_OF_UNDYING, Material.SHULKER_BOX
-    );
+    private static final List<Material> TARGET_ITEMS = new ArrayList<>();
+
+    static {
+        for (Material m : Material.values()) {
+            if (m.isItem() && !m.isLegacy() && m != Material.AIR && m != Material.BEDROCK && m != Material.BARRIER && 
+                m != Material.COMMAND_BLOCK && m != Material.CHAIN_COMMAND_BLOCK && m != Material.REPEATING_COMMAND_BLOCK && 
+                m != Material.STRUCTURE_BLOCK && m != Material.STRUCTURE_VOID && m != Material.JIGSAW && m != Material.LIGHT) {
+                TARGET_ITEMS.add(m);
+            }
+        }
+    }
 
     // --- 3. Alle Todesnachrichten ---
     private boolean deathsEnabled = false;
@@ -198,7 +201,7 @@ public class ProjectManager {
         currentItemIndex++;
 
         if (currentItemIndex >= TARGET_ITEMS.size()) {
-            Bukkit.broadcastMessage("§a[Projekt] §2§lHerzlichen Glückwunsch! Alle Items wurden gesammelt!");
+            Bukkit.broadcastMessage("§a[Projekt] §2§lHerzlichen Glückwunsch! Alle " + TARGET_ITEMS.size() + " Items wurden gesammelt!");
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.sendTitle("§a§lProjekt abgeschlossen!", "§eAlle Items gesammelt.", 10, 70, 20);
             }
