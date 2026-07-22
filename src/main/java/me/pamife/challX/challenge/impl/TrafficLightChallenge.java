@@ -2,7 +2,11 @@ package me.pamife.challX.challenge.impl;
 
 import me.pamife.challX.ChallX;
 import me.pamife.challX.challenge.BaseChallenge;
+import me.pamife.challX.gui.CustomGUI;
+import me.pamife.challX.gui.GUIButton;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -11,7 +15,6 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -19,124 +22,131 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.Arrays;
-import java.util.Random;
 
 public class TrafficLightChallenge extends BaseChallenge {
 
-    private enum LightState {
-        GREEN("§a§lGRÜN - BEWEGUNG ERLAUBT", BarColor.GREEN, 12),
-        YELLOW("§e§lGELB - ACHTUNG!", BarColor.YELLOW, 3),
-        RED("§c§lROT - STEHEN BLEIBEN!", BarColor.RED, 7);
-
-        final String title;
-        final BarColor color;
-        final int duration; // in Sekunden
-
-        LightState(String title, BarColor color, int duration) {
-            this.title = title;
-            this.color = color;
-            this.duration = duration;
-        }
-    }
-
-    private BossBar bossBar;
     private BukkitTask task;
-    private LightState currentState = LightState.GREEN;
-    private int ticksLeft = 0;
+    private boolean isGreen = true;
+    private int phaseSeconds = 10; // Default 10s
+    private BossBar bossBar;
 
     @Override
     public String getName() {
-        return "Ampel-Challenge";
+        return "Ampel";
     }
 
     @Override
     public String getDescription() {
-        return "Zeigt am oberen Rand eine Ampel. Wer sich bei Rot bewegt, stirbt.";
+        return "Grüne Welle erlaubt Bewegung. Bei Rot musst du stillstehen. Phasenzeit im Menü einstellbar.";
     }
 
     @Override
     public ItemStack getIcon() {
-        ItemStack item = new ItemStack(Material.REDSTONE_LAMP);
+        ItemStack item = new ItemStack(Material.GREEN_WOOL);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName("§cAmpel-Challenge");
+            meta.setDisplayName("§a§lAmpel");
             item.setItemMeta(meta);
         }
         return item;
     }
 
     @Override
-    public void onEnable() {
-        bossBar = Bukkit.createBossBar(LightState.GREEN.title, BarColor.GREEN, BarStyle.SOLID);
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            bossBar.addPlayer(p);
-        }
-
-        currentState = LightState.GREEN;
-        ticksLeft = currentState.duration * 20;
-
-        task = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (!ChallX.getInstance().getTimerManager().isRunning()) {
-                    bossBar.setTitle(currentState.title + " §7(Pausiert)");
-                    return;
-                }
-
-                if (ticksLeft > 0) {
-                    ticksLeft--;
-                    double progress = (double) ticksLeft / (currentState.duration * 20.0);
-                    bossBar.setProgress(Math.max(0.0, Math.min(1.0, progress)));
-                } else {
-                    // Zustandswechsel
-                    switchState();
-                }
-            }
-        }.runTaskTimer(ChallX.getInstance(), 1L, 1L);
+    public boolean hasSettings() {
+        return true;
     }
 
-    private void switchState() {
-        switch (currentState) {
-            case GREEN -> {
-                currentState = LightState.YELLOW;
-                playSoundToAll(Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
-            }
-            case YELLOW -> {
-                currentState = LightState.RED;
-                playSoundToAll(Sound.ENTITY_WITHER_SPAWN, 1.0f, 0.5f);
-            }
-            case RED -> {
-                currentState = LightState.GREEN;
-                playSoundToAll(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
-            }
+    @Override
+    public void openSettings(Player player) {
+        CustomGUI gui = new CustomGUI(Component.text("§a§lAmpelphasen Dauer"), 3);
+
+        int[] times = {5, 10, 15};
+        int[] slots = {11, 13, 15};
+
+        for (int i = 0; i < times.length; i++) {
+            int t = times[i];
+            ItemStack item = createSettingsItem(
+                    Material.CLOCK,
+                    "§e§l" + t + " Sekunden Phasen",
+                    "§7Wechselt alle " + t + "s zwischen Grün/Rot.",
+                    "",
+                    t == phaseSeconds ? "§a§lAktuell Ausgewählt" : "§7[Klicke zum Auswählen]"
+            );
+            gui.setButton(slots[i], new GUIButton(item, e -> {
+                phaseSeconds = t;
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
+                openSettings(player);
+            }));
         }
-        ticksLeft = currentState.duration * 20;
-        bossBar.setColor(currentState.color);
-        bossBar.setTitle(currentState.title);
+
+        gui.setButton(22, new GUIButton(
+                createSettingsItem(Material.BARRIER, "§cZurück zu Challenges"),
+                e -> ChallX.getInstance().openChallengesGUI(player)
+        ));
+
+        fillBackground(gui);
+        gui.open(player);
     }
 
-    private void playSoundToAll(Sound sound, float vol, float pitch) {
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            p.playSound(p.getLocation(), sound, vol, pitch);
+    private ItemStack createSettingsItem(Material material, String name, String... lore) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(name);
+            meta.setLore(Arrays.asList(lore));
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private void fillBackground(CustomGUI gui) {
+        ItemStack filler = createSettingsItem(Material.GRAY_STAINED_GLASS_PANE, "§7 ");
+        for (int i = 0; i < 27; i++) {
+            if (gui.getButton(i) == null) {
+                gui.setButton(i, new GUIButton(filler, e -> {}));
+            }
         }
     }
 
     @Override
-    public void onDisable() {
-        if (bossBar != null) {
-            bossBar.removeAll();
-            bossBar = null;
+    public void onEnable() {
+        isGreen = true;
+        bossBar = Bukkit.createBossBar("§a§lGRÜN - Laufen erlaubt!", BarColor.GREEN, BarStyle.SOLID);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!ChallX.getInstance().getSettingsManager().isExcluded(p.getUniqueId())) {
+                bossBar.addPlayer(p);
+            }
         }
+
+        long ticks = phaseSeconds * 20L;
+        task = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!ChallX.getInstance().getTimerManager().isRunning()) return;
+
+                isGreen = !isGreen;
+                if (isGreen) {
+                    bossBar.setTitle("§a§lGRÜN - Laufen erlaubt!");
+                    bossBar.setColor(BarColor.GREEN);
+                    for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 2.0f);
+                } else {
+                    bossBar.setTitle("§c§lROT - STILLSTEHEN!");
+                    bossBar.setColor(BarColor.RED);
+                    for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
+                }
+            }
+        }.runTaskTimer(ChallX.getInstance(), ticks, ticks);
+    }
+
+    @Override
+    public void onDisable() {
         if (task != null) {
             task.cancel();
             task = null;
         }
-    }
-
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        if (isEnabled() && bossBar != null) {
-            bossBar.addPlayer(event.getPlayer());
+        if (bossBar != null) {
+            bossBar.removeAll();
+            bossBar = null;
         }
     }
 
@@ -144,20 +154,31 @@ public class TrafficLightChallenge extends BaseChallenge {
     public void onMove(PlayerMoveEvent event) {
         if (!isEnabled()) return;
         if (!ChallX.getInstance().getTimerManager().isRunning()) return;
-        if (currentState != LightState.RED) return;
+        if (isGreen) return;
 
         Player player = event.getPlayer();
         if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) return;
-        if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) return;
+        if (player.getGameMode() == GameMode.SPECTATOR || player.getGameMode() == GameMode.CREATIVE) return;
 
         Location from = event.getFrom();
         Location to = event.getTo();
         if (to == null) return;
 
-        // Horizontale Bewegung prüfen (X und Z)
-        if (from.getX() != to.getX() || from.getZ() != to.getZ()) {
-            player.setHealth(0.0);
-            Bukkit.broadcastMessage("§c" + player.getName() + " ist bei ROT gelaufen und gestorben!");
+        if (from.getBlockX() != to.getBlockX() || from.getBlockY() != to.getBlockY() || from.getBlockZ() != to.getBlockZ()) {
+            player.damage(4.0); // 2 Herzen Schaden
+            player.sendMessage("§c[Ampel] Bei ROT bewegt! (2 Herzen Schaden)");
+        }
+    }
+
+    @Override
+    public Object getSettingsState() {
+        return phaseSeconds;
+    }
+
+    @Override
+    public void loadSettingsState(Object state) {
+        if (state instanceof Number num) {
+            phaseSeconds = num.intValue();
         }
     }
 }

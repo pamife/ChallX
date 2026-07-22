@@ -5,37 +5,37 @@ import me.pamife.challX.challenge.BaseChallenge;
 import me.pamife.challX.gui.CustomGUI;
 import me.pamife.challX.gui.GUIButton;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Collections;
+import java.util.Arrays;
 
 public class MirrorDamageChallenge extends BaseChallenge {
 
-    private double mirrorChance = 0.25; // 25% Standard-Wahrscheinlichkeit
+    private int mirrorPercent = 100; // Default 100%
 
     @Override
     public String getName() {
-        return "Gespiegelter Schaden";
+        return "Geteilter Schaden (Mirror)";
     }
 
     @Override
     public String getDescription() {
-        return "Schaden an Mobs wird mit einer gewissen Chance gespiegelt.";
+        return "Erhält ein Spieler Schaden, bekommen alle anderen Spieler ebenfalls Schaden. Prozentsatz im Menü einstellbar.";
     }
 
     @Override
     public ItemStack getIcon() {
-        ItemStack item = new ItemStack(Material.SHIELD);
+        ItemStack item = new ItemStack(Material.GLASS_PANE);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName("§cGespiegelter Schaden");
-            meta.setLore(Collections.singletonList("§7Wahrscheinlichkeit: §e" + (int)(mirrorChance * 100) + "%"));
+            meta.setDisplayName("§c§lGeteilter Schaden (Mirror)");
             item.setItemMeta(meta);
         }
         return item;
@@ -48,84 +48,87 @@ public class MirrorDamageChallenge extends BaseChallenge {
 
     @Override
     public void openSettings(Player player) {
-        CustomGUI gui = new CustomGUI(Component.text("§cSpiegel-Wahrscheinlichkeit"), 1);
+        CustomGUI gui = new CustomGUI(Component.text("§c§lMirror Schaden Prozentsatz"), 3);
 
-        // Minus-Button (Slot 2)
-        ItemStack minus = new ItemStack(Material.RED_WOOL);
-        ItemMeta minusMeta = minus.getItemMeta();
-        if (minusMeta != null) {
-            minusMeta.setDisplayName("§c-10% Wahrscheinlichkeit");
-            minus.setItemMeta(minusMeta);
+        int[] percents = {25, 50, 75, 100};
+        int[] slots = {10, 12, 14, 16};
+
+        for (int i = 0; i < percents.length; i++) {
+            int p = percents[i];
+            ItemStack item = createSettingsItem(
+                    Material.REDSTONE,
+                    "§e§l" + p + "% Schaden übertragen",
+                    "§7Überträgt " + p + "% des Schadens.",
+                    "",
+                    p == mirrorPercent ? "§a§lAktuell Ausgewählt" : "§7[Klicke zum Auswählen]"
+            );
+            gui.setButton(slots[i], new GUIButton(item, e -> {
+                mirrorPercent = p;
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
+                openSettings(player);
+            }));
         }
-        gui.setButton(2, new GUIButton(minus, e -> {
-            mirrorChance = Math.max(0.0, mirrorChance - 0.1);
-            openSettings(player); // GUI aktualisieren
-        }));
 
-        // Info-Button (Slot 4)
-        ItemStack info = new ItemStack(Material.SUNFLOWER);
-        ItemMeta infoMeta = info.getItemMeta();
-        if (infoMeta != null) {
-            infoMeta.setDisplayName("§eAktuelle Chance: §6" + (int)(mirrorChance * 100) + "%");
-            info.setItemMeta(infoMeta);
-        }
-        gui.setButton(4, new GUIButton(info, e -> {}));
+        gui.setButton(22, new GUIButton(
+                createSettingsItem(Material.BARRIER, "§cZurück zu Challenges"),
+                e -> ChallX.getInstance().openChallengesGUI(player)
+        ));
 
-        // Plus-Button (Slot 6)
-        ItemStack plus = new ItemStack(Material.GREEN_WOOL);
-        ItemMeta plusMeta = plus.getItemMeta();
-        if (plusMeta != null) {
-            plusMeta.setDisplayName("§a+10% Wahrscheinlichkeit");
-            plus.setItemMeta(plusMeta);
-        }
-        gui.setButton(6, new GUIButton(plus, e -> {
-            mirrorChance = Math.min(1.0, mirrorChance + 0.1);
-            openSettings(player); // GUI aktualisieren
-        }));
-
-        // Zurück-Button (Slot 8)
-        ItemStack back = new ItemStack(Material.BARRIER);
-        ItemMeta backMeta = back.getItemMeta();
-        if (backMeta != null) {
-            backMeta.setDisplayName("§cZurück");
-            back.setItemMeta(backMeta);
-        }
-        gui.setButton(8, new GUIButton(back, e -> {
-            // Main settings GUI öffnen
-            ChallX.getInstance().openSettingsGUI(player);
-        }));
-
+        fillBackground(gui);
         gui.open(player);
+    }
+
+    private ItemStack createSettingsItem(Material material, String name, String... lore) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(name);
+            meta.setLore(Arrays.asList(lore));
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private void fillBackground(CustomGUI gui) {
+        ItemStack filler = createSettingsItem(Material.GRAY_STAINED_GLASS_PANE, "§7 ");
+        for (int i = 0; i < 27; i++) {
+            if (gui.getButton(i) == null) {
+                gui.setButton(i, new GUIButton(filler, e -> {}));
+            }
+        }
+    }
+
+    @EventHandler
+    public void onDamage(EntityDamageEvent event) {
+        if (!isEnabled()) return;
+        if (!ChallX.getInstance().getTimerManager().isRunning()) return;
+
+        if (event.getEntity() instanceof Player victim) {
+            if (ChallX.getInstance().getSettingsManager().isExcluded(victim.getUniqueId())) return;
+            if (victim.getGameMode() == org.bukkit.GameMode.SPECTATOR || victim.getGameMode() == org.bukkit.GameMode.CREATIVE) return;
+
+            double sharedDamage = event.getDamage() * (mirrorPercent / 100.0);
+
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (!p.getUniqueId().equals(victim.getUniqueId()) && !ChallX.getInstance().getSettingsManager().isExcluded(p.getUniqueId())) {
+                    if (p.getGameMode() != org.bukkit.GameMode.SPECTATOR && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
+                        p.damage(sharedDamage);
+                        p.sendMessage("§c[Shared Damage] " + victim.getName() + " hat Schaden erlitten (" + sharedDamage + " HP)!");
+                    }
+                }
+            }
+        }
     }
 
     @Override
     public Object getSettingsState() {
-        return mirrorChance;
+        return mirrorPercent;
     }
 
     @Override
     public void loadSettingsState(Object state) {
         if (state instanceof Number num) {
-            mirrorChance = num.doubleValue();
-        }
-    }
-
-    @EventHandler
-    public void onDamageEntity(EntityDamageByEntityEvent event) {
-        if (!isEnabled()) return;
-        if (!ChallX.getInstance().getTimerManager().isRunning()) return;
-
-        if (event.getDamager() instanceof Player player) {
-            if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) return;
-            if (event.getEntity() instanceof LivingEntity) {
-                // Mit Wahrscheinlichkeit spiegeln
-                if (Math.random() < mirrorChance) {
-                    double damage = event.getDamage();
-                    event.setCancelled(true); // Verhindert Schaden am Mob
-                    player.damage(damage);
-                    player.sendMessage("§cDein Schaden wurde gespiegelt! (§4-" + String.format("%.1f", damage) + " HP§c)");
-                }
-            }
+            mirrorPercent = num.intValue();
         }
     }
 }

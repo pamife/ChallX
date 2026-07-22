@@ -2,22 +2,26 @@ package me.pamife.challX.challenge.impl;
 
 import me.pamife.challX.ChallX;
 import me.pamife.challX.challenge.BaseChallenge;
-import org.bukkit.Location;
+import me.pamife.challX.gui.CustomGUI;
+import me.pamife.challX.gui.GUIButton;
+import net.kyori.adventure.text.Component;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
+import org.bukkit.Sound;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Arrays;
+
 public class ReverseActionsChallenge extends BaseChallenge {
+
+    private int delaySeconds = 4; // Default 4s
 
     @Override
     public String getName() {
@@ -26,18 +30,75 @@ public class ReverseActionsChallenge extends BaseChallenge {
 
     @Override
     public String getDescription() {
-        return "Alle Aktionen (Blöcke abbauen/platzieren, Mobs töten) werden nach 4 Sekunden wieder rückgängig gemacht.";
+        return "Gebaute und abgebaute Blöcke werden nach kurzer Zeit wieder rückgängig gemacht. Verzögerung im Menü einstellbar.";
     }
 
     @Override
     public ItemStack getIcon() {
-        ItemStack item = new ItemStack(Material.REPEATING_COMMAND_BLOCK);
+        ItemStack item = new ItemStack(Material.CLOCK);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName("§d§lAlles rückgängig");
+            meta.setDisplayName("§e§lAlles rückgängig");
             item.setItemMeta(meta);
         }
         return item;
+    }
+
+    @Override
+    public boolean hasSettings() {
+        return true;
+    }
+
+    @Override
+    public void openSettings(Player player) {
+        CustomGUI gui = new CustomGUI(Component.text("§e§lRückgängig Verzögerung"), 3);
+
+        int[] times = {2, 4, 6, 10};
+        int[] slots = {10, 12, 14, 16};
+
+        for (int i = 0; i < times.length; i++) {
+            int t = times[i];
+            ItemStack item = createSettingsItem(
+                    Material.CLOCK,
+                    "§e§l" + t + " Sekunden Verzögerung",
+                    "§7Macht Aktionen nach " + t + "s rückgängig.",
+                    "",
+                    t == delaySeconds ? "§a§lAktuell Ausgewählt" : "§7[Klicke zum Auswählen]"
+            );
+            gui.setButton(slots[i], new GUIButton(item, e -> {
+                delaySeconds = t;
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
+                openSettings(player);
+            }));
+        }
+
+        gui.setButton(22, new GUIButton(
+                createSettingsItem(Material.BARRIER, "§cZurück zu Challenges"),
+                e -> ChallX.getInstance().openChallengesGUI(player)
+        ));
+
+        fillBackground(gui);
+        gui.open(player);
+    }
+
+    private ItemStack createSettingsItem(Material material, String name, String... lore) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(name);
+            meta.setLore(Arrays.asList(lore));
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private void fillBackground(CustomGUI gui) {
+        ItemStack filler = createSettingsItem(Material.GRAY_STAINED_GLASS_PANE, "§7 ");
+        for (int i = 0; i < 27; i++) {
+            if (gui.getButton(i) == null) {
+                gui.setButton(i, new GUIButton(filler, e -> {}));
+            }
+        }
     }
 
     @EventHandler
@@ -47,11 +108,11 @@ public class ReverseActionsChallenge extends BaseChallenge {
 
         Player player = event.getPlayer();
         if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) return;
-        if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) return;
+        if (player.getGameMode() == GameMode.SPECTATOR || player.getGameMode() == GameMode.CREATIVE) return;
 
         BlockState state = event.getBlock().getState();
+        long ticks = delaySeconds * 20L;
 
-        // Nach 80 Ticks (4 Sekunden) wiederherstellen
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -59,7 +120,7 @@ public class ReverseActionsChallenge extends BaseChallenge {
                     state.update(true, false);
                 }
             }
-        }.runTaskLater(ChallX.getInstance(), 80L);
+        }.runTaskLater(ChallX.getInstance(), ticks);
     }
 
     @EventHandler
@@ -69,45 +130,30 @@ public class ReverseActionsChallenge extends BaseChallenge {
 
         Player player = event.getPlayer();
         if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) return;
-        if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) return;
+        if (player.getGameMode() == GameMode.SPECTATOR || player.getGameMode() == GameMode.CREATIVE) return;
 
-        Block block = event.getBlock();
-        BlockState originalState = event.getBlockReplacedState();
+        org.bukkit.block.Block block = event.getBlockPlaced();
+        long ticks = delaySeconds * 20L;
 
-        // Nach 80 Ticks (4 Sekunden) gelöscht/zurückgesetzt
         new BukkitRunnable() {
             @Override
             public void run() {
                 if (isEnabled()) {
-                    originalState.update(true, false);
+                    block.setType(Material.AIR);
                 }
             }
-        }.runTaskLater(ChallX.getInstance(), 80L);
+        }.runTaskLater(ChallX.getInstance(), ticks);
     }
 
-    @EventHandler
-    public void onEntityDeath(EntityDeathEvent event) {
-        if (!isEnabled()) return;
-        if (!ChallX.getInstance().getTimerManager().isRunning()) return;
+    @Override
+    public Object getSettingsState() {
+        return delaySeconds;
+    }
 
-        LivingEntity entity = event.getEntity();
-        if (entity instanceof Player) return; // Spieler nicht respawnen
-        if (entity.getKiller() == null) return; // Nur wenn von einem Spieler getötet
-
-        Player killer = entity.getKiller();
-        if (ChallX.getInstance().getSettingsManager().isExcluded(killer.getUniqueId())) return;
-
-        EntityType type = event.getEntityType();
-        Location loc = entity.getLocation();
-
-        // Nach 80 Ticks (4 Sekunden) wiederbeleben
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (isEnabled()) {
-                    loc.getWorld().spawnEntity(loc, type);
-                }
-            }
-        }.runTaskLater(ChallX.getInstance(), 80L);
+    @Override
+    public void loadSettingsState(Object state) {
+        if (state instanceof Number num) {
+            delaySeconds = num.intValue();
+        }
     }
 }

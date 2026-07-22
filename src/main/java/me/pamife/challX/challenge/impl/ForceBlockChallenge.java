@@ -2,12 +2,14 @@ package me.pamife.challX.challenge.impl;
 
 import me.pamife.challX.ChallX;
 import me.pamife.challX.challenge.BaseChallenge;
+import me.pamife.challX.gui.CustomGUI;
+import me.pamife.challX.gui.GUIButton;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -17,25 +19,28 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 public class ForceBlockChallenge extends BaseChallenge {
 
-    private BukkitTask mainTask;
     private BukkitTask runTask;
+    private Material targetMaterial;
+    private int timeLeft;
+    private int customDuration = 60; // Default 60s
     private BossBar bossBar;
-    
-    private Material targetBlock = null;
-    private int timeLeft = 0;
-    private final Set<UUID> safePlayers = new HashSet<>();
 
-    private static final List<Material> VALID_BLOCKS = Arrays.asList(
-            Material.GRASS_BLOCK, Material.DIRT, Material.COBBLESTONE, Material.STONE, Material.OAK_PLANKS,
-            Material.SAND, Material.GRAVEL, Material.OAK_LOG, Material.GLASS, Material.WHITE_WOOL,
-            Material.CRAFTING_TABLE, Material.FURNACE, Material.CHEST, Material.COAL_ORE, Material.IRON_ORE,
-            Material.COPPER_ORE, Material.GOLD_ORE, Material.DEEPSLATE, Material.OBSIDIAN, Material.NETHERRACK,
-            Material.SOUL_SAND, Material.SOUL_SOIL, Material.GLOWSTONE, Material.MAGMA_BLOCK, Material.BONE_BLOCK
-    );
+    private static final List<Material> VALID_BLOCKS = new ArrayList<>();
+
+    static {
+        for (Material m : Material.values()) {
+            if (m.isBlock() && !m.isLegacy() && m != Material.AIR && m != Material.BEDROCK && m != Material.BARRIER) {
+                VALID_BLOCKS.add(m);
+            }
+        }
+    }
 
     @Override
     public String getName() {
@@ -44,7 +49,7 @@ public class ForceBlockChallenge extends BaseChallenge {
 
     @Override
     public String getDescription() {
-        return "Spieler müssen alle 3 Minuten innerhalb von 60 Sekunden auf einem bestimmten Block stehen.";
+        return "Du musst beim Ablauf des Timers auf dem vorgegebenen Block stehen. Zeit im Menü einstellbar.";
     }
 
     @Override
@@ -59,33 +64,75 @@ public class ForceBlockChallenge extends BaseChallenge {
     }
 
     @Override
-    public void onEnable() {
-        safePlayers.clear();
-        targetBlock = null;
+    public boolean hasSettings() {
+        return true;
+    }
 
-        // Alle 3 Minuten (3600 Ticks) eine neue Aufgabe starten
-        mainTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (!ChallX.getInstance().getTimerManager().isRunning()) return;
-                startNewRound();
+    @Override
+    public void openSettings(Player player) {
+        CustomGUI gui = new CustomGUI(Component.text("§a§lForce-Block Countdown Zeit"), 3);
+
+        int[] times = {30, 45, 60, 90};
+        int[] slots = {10, 12, 14, 16};
+
+        for (int i = 0; i < times.length; i++) {
+            int t = times[i];
+            ItemStack item = createSettingsItem(
+                    Material.CLOCK,
+                    "§e§l" + t + " Sekunden Zeit",
+                    "§7Zeit bis zum Block-Check: " + t + "s.",
+                    "",
+                    t == customDuration ? "§a§lAktuell Ausgewählt" : "§7[Klicke zum Auswählen]"
+            );
+            gui.setButton(slots[i], new GUIButton(item, e -> {
+                customDuration = t;
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
+                openSettings(player);
+            }));
+        }
+
+        gui.setButton(22, new GUIButton(
+                createSettingsItem(Material.BARRIER, "§cZurück zu Challenges"),
+                e -> ChallX.getInstance().openChallengesGUI(player)
+        ));
+
+        fillBackground(gui);
+        gui.open(player);
+    }
+
+    private ItemStack createSettingsItem(Material material, String name, String... lore) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(name);
+            meta.setLore(Arrays.asList(lore));
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private void fillBackground(CustomGUI gui) {
+        ItemStack filler = createSettingsItem(Material.GRAY_STAINED_GLASS_PANE, "§7 ");
+        for (int i = 0; i < 27; i++) {
+            if (gui.getButton(i) == null) {
+                gui.setButton(i, new GUIButton(filler, e -> {}));
             }
-        }.runTaskTimer(ChallX.getInstance(), 100L, 3600L); // Erste Runde nach 5 Sekunden
+        }
+    }
+
+    @Override
+    public void onEnable() {
+        startNewRound();
     }
 
     private void startNewRound() {
-        if (runTask != null) {
-            runTask.cancel();
-        }
-        if (bossBar != null) {
-            bossBar.removeAll();
-        }
+        if (runTask != null) runTask.cancel();
+        if (bossBar != null) bossBar.removeAll();
 
-        safePlayers.clear();
-        targetBlock = VALID_BLOCKS.get(new Random().nextInt(VALID_BLOCKS.size()));
-        timeLeft = 60;
+        targetMaterial = VALID_BLOCKS.get(new Random().nextInt(VALID_BLOCKS.size()));
+        timeLeft = customDuration;
 
-        bossBar = Bukkit.createBossBar("§eStehe auf: §6" + targetBlock.name() + " §7- Noch: §c60s", BarColor.YELLOW, BarStyle.SOLID);
+        bossBar = Bukkit.createBossBar("§eStehe auf: §6" + targetMaterial.name() + " §7- Noch: §c" + timeLeft + "s", BarColor.GREEN, BarStyle.SOLID);
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (!ChallX.getInstance().getSettingsManager().isExcluded(p.getUniqueId())) {
                 bossBar.addPlayer(p);
@@ -99,37 +146,32 @@ public class ForceBlockChallenge extends BaseChallenge {
 
                 timeLeft--;
                 if (timeLeft <= 0) {
-                    // Timer abgelaufen: Bestrafen, wenn man nicht genau jetzt auf dem Block steht
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         if (ChallX.getInstance().getSettingsManager().isExcluded(p.getUniqueId())) continue;
                         if (p.getGameMode() == GameMode.SPECTATOR || p.getGameMode() == GameMode.CREATIVE) continue;
 
-                        Block stand = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
-                        if (stand.getType() == targetBlock) {
-                            p.sendMessage("§a[Force-Block] §2Erfolgreich! Du standest auf dem Block.");
-                            p.sendTitle("§a§lÜberlebt!", "§eBlock gefunden.", 5, 40, 5);
+                        Block below = p.getLocation().getBlock().getRelative(org.bukkit.block.BlockFace.DOWN);
+                        if (below.getType() == targetMaterial) {
+                            p.sendMessage("§a[Force-Block] §2Erfolgreich! Du stehst auf dem Block.");
+                            p.sendTitle("§a§lÜberlebt!", "§eBlock erreicht.", 5, 40, 5);
                             p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1.5f);
                         } else {
-                            p.damage(20.0); // Sofortiger Tod
-                            p.sendMessage("§c[Force-Block] Zeit abgelaufen! Du standest zum Ablauf nicht auf dem Block (" + targetBlock.name() + ").");
+                            p.damage(20.0);
+                            p.sendMessage("§c[Force-Block] Zeit abgelaufen! Du standest nicht auf " + targetMaterial.name() + ".");
                         }
                     }
                     bossBar.removeAll();
                     cancel();
                 } else {
-                    bossBar.setTitle("§eStehe auf: §6" + targetBlock.name() + " §7- Noch: §c" + timeLeft + "s");
-                    bossBar.setProgress((double) timeLeft / 60.0);
+                    bossBar.setTitle("§eStehe auf: §6" + targetMaterial.name() + " §7- Noch: §c" + timeLeft + "s");
+                    bossBar.setProgress((double) timeLeft / (double) customDuration);
                 }
             }
-        }.runTaskTimer(ChallX.getInstance(), 20L, 20L); // Jede Sekunde (20 Ticks)
+        }.runTaskTimer(ChallX.getInstance(), 20L, 20L);
     }
 
     @Override
     public void onDisable() {
-        if (mainTask != null) {
-            mainTask.cancel();
-            mainTask = null;
-        }
         if (runTask != null) {
             runTask.cancel();
             runTask = null;
@@ -138,7 +180,17 @@ public class ForceBlockChallenge extends BaseChallenge {
             bossBar.removeAll();
             bossBar = null;
         }
-        safePlayers.clear();
-        targetBlock = null;
+    }
+
+    @Override
+    public Object getSettingsState() {
+        return customDuration;
+    }
+
+    @Override
+    public void loadSettingsState(Object state) {
+        if (state instanceof Number num) {
+            customDuration = num.intValue();
+        }
     }
 }

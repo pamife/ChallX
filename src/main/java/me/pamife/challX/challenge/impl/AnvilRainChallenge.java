@@ -2,26 +2,27 @@ package me.pamife.challX.challenge.impl;
 
 import me.pamife.challX.ChallX;
 import me.pamife.challX.challenge.BaseChallenge;
+import me.pamife.challX.gui.CustomGUI;
+import me.pamife.challX.gui.GUIButton;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.Iterator;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Arrays;
+import java.util.Random;
 
 public class AnvilRainChallenge extends BaseChallenge {
 
-    private BukkitTask spawnTask;
-    private BukkitTask collisionTask;
-    private final Set<FallingBlock> activeAnvils = ConcurrentHashMap.newKeySet();
+    private BukkitTask task;
+    private int intervalSeconds = 2; // Default 2s
 
     @Override
     public String getName() {
@@ -30,7 +31,7 @@ public class AnvilRainChallenge extends BaseChallenge {
 
     @Override
     public String getDescription() {
-        return "Spawnt alle 3 Sekunden einen fallenden Amboss über jedem Spieler.";
+        return "Ambosse regnen stetig über den Spielern herab. Spawn-Intervall im Menü einstellbar.";
     }
 
     @Override
@@ -38,89 +39,110 @@ public class AnvilRainChallenge extends BaseChallenge {
         ItemStack item = new ItemStack(Material.ANVIL);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName("§7Amboss-Regen");
+            meta.setDisplayName("§8§lAmboss-Regen");
             item.setItemMeta(meta);
         }
         return item;
     }
 
     @Override
+    public boolean hasSettings() {
+        return true;
+    }
+
+    @Override
+    public void openSettings(Player player) {
+        CustomGUI gui = new CustomGUI(Component.text("§8§lAmboss-Regen Intervall"), 3);
+
+        int[] times = {1, 2, 3, 5};
+        int[] slots = {10, 12, 14, 16};
+
+        for (int i = 0; i < times.length; i++) {
+            int t = times[i];
+            ItemStack item = createSettingsItem(
+                    Material.CLOCK,
+                    "§e§lAlle " + t + " Sekunde(n)",
+                    "§7Spawnt Ambosse alle " + t + "s.",
+                    "",
+                    t == intervalSeconds ? "§a§lAktuell Ausgewählt" : "§7[Klicke zum Auswählen]"
+            );
+            gui.setButton(slots[i], new GUIButton(item, e -> {
+                intervalSeconds = t;
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
+                openSettings(player);
+            }));
+        }
+
+        gui.setButton(22, new GUIButton(
+                createSettingsItem(Material.BARRIER, "§cZurück zu Challenges"),
+                e -> ChallX.getInstance().openChallengesGUI(player)
+        ));
+
+        fillBackground(gui);
+        gui.open(player);
+    }
+
+    private ItemStack createSettingsItem(Material material, String name, String... lore) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(name);
+            meta.setLore(Arrays.asList(lore));
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private void fillBackground(CustomGUI gui) {
+        ItemStack filler = createSettingsItem(Material.GRAY_STAINED_GLASS_PANE, "§7 ");
+        for (int i = 0; i < 27; i++) {
+            if (gui.getButton(i) == null) {
+                gui.setButton(i, new GUIButton(filler, e -> {}));
+            }
+        }
+    }
+
+    @Override
     public void onEnable() {
-        // Spawn Task (Alle 3 Sekunden)
-        spawnTask = new BukkitRunnable() {
+        long ticks = intervalSeconds * 20L;
+        task = new BukkitRunnable() {
             @Override
             public void run() {
                 if (!ChallX.getInstance().getTimerManager().isRunning()) return;
 
+                Random random = new Random();
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) continue;
-                    if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) continue;
+                    if (player.getGameMode() == GameMode.SPECTATOR || player.getGameMode() == GameMode.CREATIVE) continue;
 
-                    // Amboss 15 Blöcke über dem Spieler spawnen
-                    Location spawnLoc = player.getLocation().clone().add(0, 15, 0);
-                    FallingBlock anvil = player.getWorld().spawnFallingBlock(spawnLoc, Bukkit.createBlockData(Material.ANVIL));
-                    anvil.setHurtEntities(true);
-                    activeAnvils.add(anvil);
+                    Location pLoc = player.getLocation();
+                    double offsetX = (random.nextDouble() - 0.5) * 4.0;
+                    double offsetZ = (random.nextDouble() - 0.5) * 4.0;
+                    Location spawnLoc = pLoc.clone().add(offsetX, 15.0, offsetZ);
+
+                    spawnLoc.getWorld().spawnFallingBlock(spawnLoc, Material.ANVIL.createBlockData());
                 }
             }
-        }.runTaskTimer(ChallX.getInstance(), 60L, 60L);
-
-        // Kollisions-Prüfungs Task (Jeden Tick)
-        collisionTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (!isEnabled() || !ChallX.getInstance().getTimerManager().isRunning()) {
-                    activeAnvils.clear();
-                    return;
-                }
-
-                Iterator<FallingBlock> it = activeAnvils.iterator();
-                while (it.hasNext()) {
-                    FallingBlock anvil = it.next();
-
-                    // Wenn der Amboss auf dem Boden liegt oder gelöscht wurde
-                    if (!anvil.isValid() || anvil.isOnGround()) {
-                        it.remove();
-                        continue;
-                    }
-
-                    Location loc = anvil.getLocation();
-                    for (Player player : loc.getWorld().getPlayers()) {
-                        if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) continue;
-                        if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) continue;
-
-                        Location pLoc = player.getLocation();
-                        double dx = Math.abs(loc.getX() - pLoc.getX());
-                        double dz = Math.abs(loc.getZ() - pLoc.getZ());
-                        double dy = loc.getY() - pLoc.getY();
-
-                        // Kollision erkennen (Spieler ist 0.6 breit und 1.8 hoch)
-                        if (dx < 0.9 && dz < 0.9 && dy >= 0.0 && dy <= 2.2) {
-                            // 8.0 HP = 4 Herzen Schaden zufügen
-                            player.damage(8.0);
-                            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 1.0f, 1.0f);
-
-                            // Amboss-Entity löschen, um Spam auf dem Boden zu vermeiden
-                            anvil.remove();
-                            it.remove();
-                            break;
-                        }
-                    }
-                }
-            }
-        }.runTaskTimer(ChallX.getInstance(), 1L, 1L);
+        }.runTaskTimer(ChallX.getInstance(), ticks, ticks);
     }
 
     @Override
     public void onDisable() {
-        if (spawnTask != null) {
-            spawnTask.cancel();
-            spawnTask = null;
+        if (task != null) {
+            task.cancel();
+            task = null;
         }
-        if (collisionTask != null) {
-            collisionTask.cancel();
-            collisionTask = null;
+    }
+
+    @Override
+    public Object getSettingsState() {
+        return intervalSeconds;
+    }
+
+    @Override
+    public void loadSettingsState(Object state) {
+        if (state instanceof Number num) {
+            intervalSeconds = num.intValue();
         }
-        activeAnvils.clear();
     }
 }
