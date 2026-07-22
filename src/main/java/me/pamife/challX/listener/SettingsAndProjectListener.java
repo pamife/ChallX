@@ -217,7 +217,7 @@ public class SettingsAndProjectListener implements Listener {
         // Todesnachrichten Projekt check
         ProjectManager pm = ChallX.getInstance().getProjectManager();
         if (pm.isDeathsEnabled() && player.getLastDamageCause() != null) {
-            pm.registerDeath(player, player.getLastDamageCause().getCause());
+            pm.registerDeath(player, player.getLastDamageCause());
         }
 
         if (getSM().getSetting(Setting.ONE_LIFE_FOR_ALL)) {

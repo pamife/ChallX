@@ -577,7 +577,7 @@ public final class ChallX extends JavaPlugin {
             int index = projectManager.getCurrentDeathIndex();
             int total = projectManager.getTargetDeaths().size();
             boolean enabled = projectManager.isDeathsEnabled();
-            String currentDeathName = index < total ? projectManager.getDeathCauseName(projectManager.getTargetDeaths().get(index)) : "Keins";
+            String currentDeathName = index < total ? projectManager.getTargetDeaths().get(index).getDisplayName() : "Keins";
             ItemStack item = createItem(
                     Material.WITHER_SKELETON_SKULL, 
                     "§a§lAlle Todesnachrichten", 
