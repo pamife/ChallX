@@ -50,6 +50,7 @@ public class ProjectManager {
     private boolean itemsEnabled = false;
     private int currentItemIndex = 0;
     private static final List<Material> TARGET_ITEMS = new ArrayList<>();
+    private BossBar itemsBossBar;
 
     static {
         for (Material m : Material.values()) {
@@ -59,6 +60,8 @@ public class ProjectManager {
                 TARGET_ITEMS.add(m);
             }
         }
+        // Reihenfolge zufällig mischen (Randomized)
+        Collections.shuffle(TARGET_ITEMS);
     }
 
     // --- 3. Alle Todesnachrichten ---
@@ -152,11 +155,7 @@ public class ProjectManager {
                             break;
                         }
                     }
-
-                    Component msg = Component.text("§a[Projekt] Nächstes Item: §e" + target.name() + " §7(" + (currentItemIndex + 1) + "/" + TARGET_ITEMS.size() + ")");
-                    for (Player p : Bukkit.getOnlinePlayers()) {
-                        p.sendActionBar(msg);
-                    }
+                    updateItemsBossBar();
                 }
 
                 // 2. Bossbar für Todesnachrichten Projekt aktualisieren
@@ -187,14 +186,67 @@ public class ProjectManager {
 
     // --- ITEM COLLECT LOGIC ---
     public boolean isItemsEnabled() { return itemsEnabled; }
-    public void setItemsEnabled(boolean itemsEnabled) { this.itemsEnabled = itemsEnabled; }
+    
+    public void setItemsEnabled(boolean itemsEnabled) {
+        this.itemsEnabled = itemsEnabled;
+        if (itemsEnabled) {
+            updateItemsBossBar();
+        } else if (itemsBossBar != null) {
+            itemsBossBar.removeAll();
+            itemsBossBar = null;
+        }
+    }
+
     public int getCurrentItemIndex() { return currentItemIndex; }
     public void setCurrentItemIndex(int idx) { this.currentItemIndex = idx; }
     public List<Material> getTargetItems() { return TARGET_ITEMS; }
 
+    private String formatItemName(Material material) {
+        String name = material.name().replace('_', ' ').toLowerCase();
+        String[] words = name.split(" ");
+        StringBuilder sb = new StringBuilder();
+        for (String w : words) {
+            if (!w.isEmpty()) {
+                sb.append(Character.toUpperCase(w.charAt(0))).append(w.substring(1)).append(" ");
+            }
+        }
+        return sb.toString().trim();
+    }
+
+    private void updateItemsBossBar() {
+        if (currentItemIndex >= TARGET_ITEMS.size()) {
+            if (itemsBossBar != null) {
+                itemsBossBar.removeAll();
+                itemsBossBar = null;
+            }
+            return;
+        }
+
+        Material target = TARGET_ITEMS.get(currentItemIndex);
+        String title = "§a[Projekt Item #" + (currentItemIndex + 1) + "/" + TARGET_ITEMS.size() + "] §eSammle: §6" + formatItemName(target);
+
+        if (itemsBossBar == null) {
+            itemsBossBar = Bukkit.createBossBar(title, BarColor.GREEN, BarStyle.SOLID);
+        } else {
+            itemsBossBar.setTitle(title);
+        }
+
+        itemsBossBar.setProgress((double) currentItemIndex / (double) TARGET_ITEMS.size());
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!ChallX.getInstance().getSettingsManager().isExcluded(p.getUniqueId())) {
+                if (!itemsBossBar.getPlayers().contains(p)) {
+                    itemsBossBar.addPlayer(p);
+                }
+            } else {
+                itemsBossBar.removePlayer(p);
+            }
+        }
+    }
+
     public void advanceItem(Player finder) {
         Material target = TARGET_ITEMS.get(currentItemIndex);
-        Bukkit.broadcastMessage("§a[Projekt] §2" + finder.getName() + " §7hat §e" + target.name() + " §7gesammelt!");
+        Bukkit.broadcastMessage("§a[Projekt] §2" + finder.getName() + " §7hat §e" + formatItemName(target) + " §7gesammelt!");
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.playSound(p.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         }
@@ -205,19 +257,23 @@ public class ProjectManager {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.sendTitle("§a§lProjekt abgeschlossen!", "§eAlle Items gesammelt.", 10, 70, 20);
             }
-            itemsEnabled = false;
+            setItemsEnabled(false);
+        } else {
+            updateItemsBossBar();
         }
     }
 
     public void skipItem(Player skipper) {
         if (!itemsEnabled) return;
         Material old = TARGET_ITEMS.get(currentItemIndex);
-        Bukkit.broadcastMessage("§e[Projekt] §6" + skipper.getName() + " §7hat das Item §e" + old.name() + " §7übersprungen.");
+        Bukkit.broadcastMessage("§e[Projekt] §6" + skipper.getName() + " §7hat das Item §e" + formatItemName(old) + " §7übersprungen.");
         currentItemIndex++;
 
         if (currentItemIndex >= TARGET_ITEMS.size()) {
             Bukkit.broadcastMessage("§a[Projekt] §2§lHerzlichen Glückwunsch! Alle Items wurden gesammelt!");
-            itemsEnabled = false;
+            setItemsEnabled(false);
+        } else {
+            updateItemsBossBar();
         }
     }
 
@@ -368,7 +424,7 @@ public class ProjectManager {
         completedAchievements.clear();
         
         mobsEnabled = false;
-        itemsEnabled = false;
+        setItemsEnabled(false);
         setDeathsEnabled(false);
         achievementsEnabled = false;
     }

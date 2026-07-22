@@ -2,11 +2,17 @@ package me.pamife.challX.challenge.impl;
 
 import me.pamife.challX.ChallX;
 import me.pamife.challX.challenge.BaseChallenge;
+import me.pamife.challX.gui.CustomGUI;
+import me.pamife.challX.gui.GUIButton;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -16,11 +22,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class ChunkEffectChallenge extends BaseChallenge {
 
     private BukkitTask task;
+    private final Map<UUID, BossBar> playerBossBars = new HashMap<>();
 
     private static final List<PotionEffectType> EFFECTS = Arrays.asList(
             PotionEffectType.SPEED, PotionEffectType.SLOWNESS, PotionEffectType.HASTE,
@@ -66,9 +76,18 @@ public class ChunkEffectChallenge extends BaseChallenge {
                     int hash = Math.abs((chunk.getX() * 31 + chunk.getZ()) % EFFECTS.size());
                     PotionEffectType effectType = EFFECTS.get(hash);
 
-                    // Effekt anwenden (60 Ticks = 3s Dauer, Partikel an)
                     player.addPotionEffect(new PotionEffect(effectType, 60, 1, false, true, true));
-                    player.sendActionBar(Component.text("§b[Chunk-Effekt] §e" + effectType.getName()));
+
+                    // BossBar statt Actionbar zur Vermeidung von Kollisionen mit dem Timer
+                    UUID uuid = player.getUniqueId();
+                    BossBar bossBar = playerBossBars.computeIfAbsent(uuid, k -> {
+                        BossBar bar = Bukkit.createBossBar("", BarColor.BLUE, BarStyle.SOLID);
+                        bar.addPlayer(player);
+                        return bar;
+                    });
+
+                    bossBar.setTitle("§b[Chunk-Effekt] §e" + effectType.getName());
+                    bossBar.setProgress(1.0);
                 }
             }
         }.runTaskTimer(ChallX.getInstance(), 20L, 20L);
@@ -80,5 +99,9 @@ public class ChunkEffectChallenge extends BaseChallenge {
             task.cancel();
             task = null;
         }
+        for (BossBar bar : playerBossBars.values()) {
+            bar.removeAll();
+        }
+        playerBossBars.clear();
     }
 }

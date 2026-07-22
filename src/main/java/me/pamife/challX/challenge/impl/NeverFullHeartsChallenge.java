@@ -10,7 +10,13 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageEvent;
+
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -21,9 +27,10 @@ import java.util.Arrays;
 public class NeverFullHeartsChallenge extends BaseChallenge {
 
     private BukkitTask task;
-    private int graceTimerConfig = 10; // Schutzzeit in Sekunden
+    private int graceTimerConfig = 10; // Default 10 Sekunden
     private int currentGraceTimeLeft = 10;
     private boolean gracePeriodActive = true;
+    private BossBar graceBossBar;
 
     @Override
     public String getName() {
@@ -32,7 +39,7 @@ public class NeverFullHeartsChallenge extends BaseChallenge {
 
     @Override
     public String getDescription() {
-        return "Spieler sterben augenblicklich bei vollen Herzen. Schutzzeit am Anfang einstellbar.";
+        return "Volle Herzen führen sofort zum Tod. Zu Beginn existiert eine anpassbare Schutzzeit.";
     }
 
     @Override
@@ -55,7 +62,6 @@ public class NeverFullHeartsChallenge extends BaseChallenge {
     public void openSettings(Player player) {
         CustomGUI gui = new CustomGUI(Component.text("§c§lVolle Herzen Schutzzeit"), 3);
 
-        // Buttons für Schutzzeit-Werte
         int[] times = {5, 10, 20, 30};
         int[] slots = {10, 11, 12, 13};
         
@@ -75,7 +81,6 @@ public class NeverFullHeartsChallenge extends BaseChallenge {
             }));
         }
 
-        // Zurück-Button (Slot 22)
         gui.setButton(22, new GUIButton(
                 createSettingsItem(Material.BARRIER, "§cZurück zu Challenges"),
                 e -> ChallX.getInstance().openChallengesGUI(player)
@@ -110,6 +115,13 @@ public class NeverFullHeartsChallenge extends BaseChallenge {
         currentGraceTimeLeft = graceTimerConfig;
         gracePeriodActive = true;
 
+        graceBossBar = Bukkit.createBossBar("§e[Volle Herzen] Schutzzeit: §c" + currentGraceTimeLeft + "s §7(Nimm Schaden!)", BarColor.YELLOW, BarStyle.SOLID);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!ChallX.getInstance().getSettingsManager().isExcluded(p.getUniqueId())) {
+                graceBossBar.addPlayer(p);
+            }
+        }
+
         task = new BukkitRunnable() {
             int tickCounter = 0;
 
@@ -117,41 +129,44 @@ public class NeverFullHeartsChallenge extends BaseChallenge {
             public void run() {
                 if (!ChallX.getInstance().getTimerManager().isRunning()) return;
 
-                // Schutzzeit-Sekundentakt
                 tickCounter++;
-                if (tickCounter >= 2) { // 2 Ticks des Tasks (der alle 10 Ticks läuft) = 20 Ticks = 1 Sekunde
+                if (tickCounter >= 2) {
                     tickCounter = 0;
                     if (gracePeriodActive && currentGraceTimeLeft > 0) {
                         currentGraceTimeLeft--;
                         
-                        // Actionbar-Warnung anzeigen
-                        Component warn = Component.text("§e[Volle Herzen] §7Schutzzeit: §c" + currentGraceTimeLeft + "s §7(Nimm Schaden!)");
-                        for (Player p : Bukkit.getOnlinePlayers()) {
-                            p.sendActionBar(warn);
+                        if (graceBossBar != null) {
+                            graceBossBar.setTitle("§e[Volle Herzen] Schutzzeit: §c" + currentGraceTimeLeft + "s §7(Nimm Schaden!)");
+                            graceBossBar.setProgress((double) currentGraceTimeLeft / (double) graceTimerConfig);
                         }
 
                         if (currentGraceTimeLeft <= 0) {
                             gracePeriodActive = false;
+                            if (graceBossBar != null) {
+                                graceBossBar.removeAll();
+                                graceBossBar = null;
+                            }
                             Bukkit.broadcastMessage("§c[Volle Herzen] Die Schutzzeit ist abgelaufen!");
                         }
                     }
                 }
 
-                // Health-Checking für alle Spieler
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) continue;
-                    if (player.getGameMode() == GameMode.SPECTATOR || player.getGameMode() == GameMode.CREATIVE) continue;
+                if (!gracePeriodActive) {
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        if (ChallX.getInstance().getSettingsManager().isExcluded(p.getUniqueId())) continue;
+                        if (p.getGameMode() == GameMode.SPECTATOR || p.getGameMode() == GameMode.CREATIVE) continue;
 
-                    double maxHealth = player.getAttribute(Attribute.MAX_HEALTH).getValue();
-                    if (player.getHealth() >= maxHealth) {
-                        if (!gracePeriodActive) {
-                            player.damage(20.0); // Sofortiger Tod
-                            player.sendMessage("§cDu hattest volle Herzen! Challenge gescheitert.");
+                        var maxHealthAttr = p.getAttribute(Attribute.MAX_HEALTH);
+                        double maxHealth = maxHealthAttr != null ? maxHealthAttr.getValue() : 20.0;
+
+                        if (p.getHealth() >= maxHealth - 0.1) {
+                            p.setHealth(0.0);
+                            Bukkit.broadcastMessage("§c[Volle Herzen] " + p.getName() + " ist an vollen Herzen gestorben!");
                         }
                     }
                 }
             }
-        }.runTaskTimer(ChallX.getInstance(), 10L, 10L); // Check alle 0.5s (10 Ticks)
+        }.runTaskTimer(ChallX.getInstance(), 10L, 10L);
     }
 
     @Override
@@ -160,7 +175,11 @@ public class NeverFullHeartsChallenge extends BaseChallenge {
             task.cancel();
             task = null;
         }
-        gracePeriodActive = true;
+        if (graceBossBar != null) {
+            graceBossBar.removeAll();
+            graceBossBar = null;
+        }
+        gracePeriodActive = false;
     }
 
     @Override
