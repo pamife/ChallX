@@ -143,6 +143,12 @@ public class ThemeManager {
                 e -> ChallX.getInstance().openSettingsGUI(player)
         ));
 
+        // Buy me a coffee / Made with love (Slot 53)
+        gui.setButton(53, new GUIButton(
+                ChallX.createKoFiItem(),
+                e -> ChallX.sendKoFiLink(player)
+        ));
+
         fillBackground(gui);
         gui.open(player);
     }

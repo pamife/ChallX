@@ -261,8 +261,43 @@ public final class ChallX extends JavaPlugin {
                 e -> themeManager.openThemeGUI(player)
         ));
 
+        // 6. Buy me a coffee / Made with love (Slot 26)
+        gui.setButton(26, new GUIButton(
+                createKoFiItem(),
+                e -> sendKoFiLink(player)
+        ));
+
         fillBackground(gui, 3);
         gui.open(player);
+    }
+
+    public static ItemStack createKoFiItem() {
+        ItemStack item = new ItemStack(Material.COOKIE);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName("§d§lMade with ❤ by pa_mife");
+            meta.setLore(Arrays.asList(
+                    "§e☕ Buy me a coffee",
+                    "§7Unterstütze den Entwickler von ChallX!",
+                    "",
+                    "§b§nhttps://ko-fi.com/pamife",
+                    "§7[Klicke für Chat-Link]"
+            ));
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    public static void sendKoFiLink(Player player) {
+        player.closeInventory();
+        player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.5f);
+        
+        net.kyori.adventure.text.Component message = net.kyori.adventure.text.Component.text("§d§l[ChallX] §eMade with ❤ by §bpa_mife§e! Support on Ko-fi: ")
+                .append(net.kyori.adventure.text.Component.text("§b§nhttps://ko-fi.com/pamife")
+                        .clickEvent(net.kyori.adventure.text.event.ClickEvent.openUrl("https://ko-fi.com/pamife"))
+                        .hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(net.kyori.adventure.text.Component.text("§eKlicke, um https://ko-fi.com/pamife zu öffnen!"))));
+        
+        player.sendMessage(message);
     }
 
     public void openChallengesGUI(Player player) {
@@ -347,6 +382,12 @@ public final class ChallX extends JavaPlugin {
                     }
             ));
         }
+
+        // Buy me a coffee / Made with love (Slot 53)
+        gui.setButton(53, new GUIButton(
+                createKoFiItem(),
+                e -> sendKoFiLink(player)
+        ));
 
         fillBackground(gui, 6);
         gui.open(player);
@@ -627,6 +668,12 @@ public final class ChallX extends JavaPlugin {
                 openProjectsGUI(player);
             }));
         }
+
+        // Buy me a coffee / Made with love (Slot 26)
+        gui.setButton(26, new GUIButton(
+                createKoFiItem(),
+                e -> sendKoFiLink(player)
+        ));
 
         fillBackground(gui, 3);
         gui.open(player);
