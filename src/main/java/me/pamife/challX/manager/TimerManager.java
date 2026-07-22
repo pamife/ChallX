@@ -11,27 +11,32 @@ public class TimerManager {
     private int time = 0;
     private boolean running = false;
     private boolean reverse = false;
+    private int tickCounter = 0;
 
     public TimerManager() {
-        // Kontinuierlicher Task zur Aktualisierung der Actionbar und der Zeit
+        // Task läuft alle 2 Ticks (10x pro Sekunde) für 100% flüssiges, ultra-smoothes Pulsieren
         new BukkitRunnable() {
             @Override
             public void run() {
                 if (running) {
-                    if (reverse) {
-                        if (time > 0) {
-                            time--;
+                    tickCounter += 2;
+                    if (tickCounter >= 20) {
+                        tickCounter = 0;
+                        if (reverse) {
+                            if (time > 0) {
+                                time--;
+                            } else {
+                                running = false;
+                                broadcastMessage("<red><bold>Der Timer ist abgelaufen!</bold></red>");
+                            }
                         } else {
-                            running = false;
-                            broadcastMessage("<red><bold>Der Timer ist abgelaufen!</bold></red>");
+                            time++;
                         }
-                    } else {
-                        time++;
                     }
                 }
                 sendActionBar();
             }
-        }.runTaskTimer(ChallX.getInstance(), 20L, 20L);
+        }.runTaskTimer(ChallX.getInstance(), 2L, 2L);
     }
 
     public void start() {
@@ -46,6 +51,7 @@ public class TimerManager {
         running = false;
         time = 0;
         reverse = false;
+        tickCounter = 0;
     }
 
     public int getTime() {
@@ -79,7 +85,8 @@ public class TimerManager {
             int m = (time % 3600) / 60;
             int s = time % 60;
             String timeStr = h > 0 ? String.format("%02d:%02d:%02d", h, m, s) : String.format("%02d:%02d", m, s);
-            message = "<gradient:gold:yellow><bold>" + timeStr + "</bold></gradient>";
+
+            message = ChallX.getInstance().getThemeManager().formatTimer(timeStr);
         } else {
             message = "<red><bold>Timer pausiert</bold></red>";
         }

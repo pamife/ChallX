@@ -33,6 +33,9 @@ public class CacheManager {
 
             CacheData data = new CacheData();
 
+            // Theme
+            data.selectedTheme = ChallX.getInstance().getThemeManager().getCurrentTheme().name();
+
             // Timer
             TimerManager tm = ChallX.getInstance().getTimerManager();
             data.time = tm.getTime();
@@ -102,6 +105,13 @@ public class CacheManager {
         try (FileReader reader = new FileReader(cacheFile)) {
             CacheData data = gson.fromJson(reader, CacheData.class);
             if (data == null) return;
+
+            // Theme
+            if (data.selectedTheme != null) {
+                try {
+                    ChallX.getInstance().getThemeManager().setCurrentTheme(ThemeManager.Theme.valueOf(data.selectedTheme));
+                } catch (Exception ignored) {}
+            }
 
             // Timer
             TimerManager tm = ChallX.getInstance().getTimerManager();
@@ -176,6 +186,7 @@ public class CacheManager {
     }
 
     private static class CacheData {
+        String selectedTheme = "ZICKZACK_V5";
         int time = 0;
         boolean timerRunning = false;
         boolean timerReverse = false;

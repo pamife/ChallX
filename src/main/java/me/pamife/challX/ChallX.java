@@ -24,6 +24,7 @@ public final class ChallX extends JavaPlugin {
     private static ChallX instance;
 
     private ChallengeManager challengeManager;
+    private ThemeManager themeManager;
     private TimerManager timerManager;
     private SettingsManager settingsManager;
     private WorldResetManager worldResetManager;
@@ -36,6 +37,7 @@ public final class ChallX extends JavaPlugin {
         instance = this;
 
         // 1. Manager initialisieren
+        this.themeManager = new ThemeManager();
         this.challengeManager = new ChallengeManager();
         this.timerManager = new TimerManager();
         this.settingsManager = new SettingsManager();
@@ -180,6 +182,10 @@ public final class ChallX extends JavaPlugin {
         return timerManager;
     }
 
+    public ThemeManager getThemeManager() {
+        return themeManager;
+    }
+
     public SettingsManager getSettingsManager() {
         return settingsManager;
     }
@@ -247,6 +253,12 @@ public final class ChallX extends JavaPlugin {
         gui.setButton(16, new GUIButton(
                 createItem(Material.CLOCK, "§d§lTimer-Steuerung", "§7Klicke, um den Timer", "§7zu steuern."),
                 e -> openTimerGUI(player)
+        ));
+
+        // 5. Themes Knopf (Slot 22)
+        gui.setButton(22, new GUIButton(
+                createItem(Material.PINK_DYE, "§d§lPlugin Themes", "§7Klicke, um exklusive Themes", "§7(CraftAttack 13, ZickZack v5, etc.) zu wählen."),
+                e -> themeManager.openThemeGUI(player)
         ));
 
         fillBackground(gui, 3);
