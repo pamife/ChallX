@@ -19,15 +19,17 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.Arrays;
+import java.util.Random;
 
 public class TrafficLightChallenge extends BaseChallenge {
 
-    private BukkitTask task;
+    private BukkitRunnable currentTask;
     private boolean isGreen = true;
-    private int phaseSeconds = 10; // Default 10s
+    private boolean showBossBar = true; // Default true
+    private int minPhaseSeconds = 3;
+    private int maxPhaseSeconds = 10;
     private BossBar bossBar;
 
     @Override
@@ -37,7 +39,7 @@ public class TrafficLightChallenge extends BaseChallenge {
 
     @Override
     public String getDescription() {
-        return "Grüne Welle erlaubt Bewegung. Bei Rot musst du stillstehen. Phasenzeit im Menü einstellbar.";
+        return "Zufällige Ampelphasen (Rot/Grün). Bossbar-Countdown und Phasenbereich im Menü einstellbar.";
     }
 
     @Override
@@ -58,26 +60,50 @@ public class TrafficLightChallenge extends BaseChallenge {
 
     @Override
     public void openSettings(Player player) {
-        CustomGUI gui = new CustomGUI(Component.text("§a§lAmpelphasen Dauer"), 3);
+        CustomGUI gui = new CustomGUI(Component.text("§a§lAmpel Einstellungen"), 3);
 
-        int[] times = {5, 10, 15};
-        int[] slots = {11, 13, 15};
+        // 1. BossBar Toggle (Slot 11)
+        ItemStack bossBarItem = createSettingsItem(
+                Material.NAME_TAG,
+                "§e§lBossbar Anzeige",
+                "§7Zeigt die verbleibende Phasenzeit oben an.",
+                "",
+                showBossBar ? "§a§lStatus: Aktiviert" : "§c§lStatus: Deaktiviert",
+                "§7[Klicke zum Umschalten]"
+        );
+        gui.setButton(11, new GUIButton(bossBarItem, e -> {
+            showBossBar = !showBossBar;
+            if (!showBossBar && bossBar != null) {
+                bossBar.removeAll();
+            } else if (showBossBar && isEnabled()) {
+                updateBossBarPlayerVisibility();
+            }
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
+            openSettings(player);
+        }));
 
-        for (int i = 0; i < times.length; i++) {
-            int t = times[i];
-            ItemStack item = createSettingsItem(
-                    Material.CLOCK,
-                    "§e§l" + t + " Sekunden Phasen",
-                    "§7Wechselt alle " + t + "s zwischen Grün/Rot.",
-                    "",
-                    t == phaseSeconds ? "§a§lAktuell Ausgewählt" : "§7[Klicke zum Auswählen]"
-            );
-            gui.setButton(slots[i], new GUIButton(item, e -> {
-                phaseSeconds = t;
-                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
-                openSettings(player);
-            }));
-        }
+        // 2. Zufallsbereich (Slot 15)
+        ItemStack rangeItem = createSettingsItem(
+                Material.CLOCK,
+                "§e§lZufalls-Dauer: " + minPhaseSeconds + "s - " + maxPhaseSeconds + "s",
+                "§7Die Ampel schaltet in zufälligen Abständen um.",
+                "",
+                "§7[Klicke zum Ändern]"
+        );
+        gui.setButton(15, new GUIButton(rangeItem, e -> {
+            if (minPhaseSeconds == 3) {
+                minPhaseSeconds = 1;
+                maxPhaseSeconds = 5;
+            } else if (minPhaseSeconds == 1) {
+                minPhaseSeconds = 5;
+                maxPhaseSeconds = 15;
+            } else {
+                minPhaseSeconds = 3;
+                maxPhaseSeconds = 10;
+            }
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
+            openSettings(player);
+        }));
 
         gui.setButton(22, new GUIButton(
                 createSettingsItem(Material.BARRIER, "§cZurück zu Challenges"),
@@ -112,37 +138,70 @@ public class TrafficLightChallenge extends BaseChallenge {
     public void onEnable() {
         isGreen = true;
         bossBar = Bukkit.createBossBar("§a§lGRÜN - Laufen erlaubt!", BarColor.GREEN, BarStyle.SOLID);
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (!ChallX.getInstance().getSettingsManager().isExcluded(p.getUniqueId())) {
-                bossBar.addPlayer(p);
+        updateBossBarPlayerVisibility();
+        scheduleNextPhase();
+    }
+
+    private void updateBossBarPlayerVisibility() {
+        if (bossBar == null) return;
+        bossBar.removeAll();
+        if (showBossBar) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (!ChallX.getInstance().getSettingsManager().isExcluded(p.getUniqueId())) {
+                    bossBar.addPlayer(p);
+                }
             }
         }
+    }
 
-        long ticks = phaseSeconds * 20L;
-        task = new BukkitRunnable() {
+    private void scheduleNextPhase() {
+        if (currentTask != null) currentTask.cancel();
+
+        Random random = new Random();
+        int randomSeconds = minPhaseSeconds + random.nextInt(Math.max(1, maxPhaseSeconds - minPhaseSeconds + 1));
+        final int totalDuration = randomSeconds;
+
+        currentTask = new BukkitRunnable() {
+            int remainingSeconds = totalDuration;
+
             @Override
             public void run() {
                 if (!ChallX.getInstance().getTimerManager().isRunning()) return;
 
-                isGreen = !isGreen;
-                if (isGreen) {
-                    bossBar.setTitle("§a§lGRÜN - Laufen erlaubt!");
-                    bossBar.setColor(BarColor.GREEN);
-                    for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 2.0f);
+                if (remainingSeconds <= 0) {
+                    isGreen = !isGreen;
+                    if (isGreen) {
+                        if (bossBar != null) {
+                            bossBar.setTitle("§a§lGRÜN - Laufen erlaubt!");
+                            bossBar.setColor(BarColor.GREEN);
+                        }
+                        for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 2.0f);
+                    } else {
+                        if (bossBar != null) {
+                            bossBar.setTitle("§c§lROT - STILLSTEHEN!");
+                            bossBar.setColor(BarColor.RED);
+                        }
+                        for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
+                    }
+                    scheduleNextPhase();
                 } else {
-                    bossBar.setTitle("§c§lROT - STILLSTEHEN!");
-                    bossBar.setColor(BarColor.RED);
-                    for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
+                    if (showBossBar && bossBar != null) {
+                        String title = isGreen ? "§a§lGRÜN - Laufen erlaubt! (§c" + remainingSeconds + "s§a)" : "§c§lROT - STILLSTEHEN! (§c" + remainingSeconds + "s§c)";
+                        bossBar.setTitle(title);
+                        bossBar.setProgress((double) remainingSeconds / (double) totalDuration);
+                    }
+                    remainingSeconds--;
                 }
             }
-        }.runTaskTimer(ChallX.getInstance(), ticks, ticks);
+        };
+        currentTask.runTaskTimer(ChallX.getInstance(), 0L, 20L);
     }
 
     @Override
     public void onDisable() {
-        if (task != null) {
-            task.cancel();
-            task = null;
+        if (currentTask != null) {
+            currentTask.cancel();
+            currentTask = null;
         }
         if (bossBar != null) {
             bossBar.removeAll();
@@ -165,20 +224,22 @@ public class TrafficLightChallenge extends BaseChallenge {
         if (to == null) return;
 
         if (from.getBlockX() != to.getBlockX() || from.getBlockY() != to.getBlockY() || from.getBlockZ() != to.getBlockZ()) {
-            player.damage(4.0); // 2 Herzen Schaden
-            player.sendMessage("§c[Ampel] Bei ROT bewegt! (2 Herzen Schaden)");
+            player.damage(20.0); // Sofortiger Tod bei Rot
+            player.sendMessage("§c[Ampel] Bei ROT bewegt! Du bist gestorben.");
         }
     }
 
     @Override
     public Object getSettingsState() {
-        return phaseSeconds;
+        return new Object[]{showBossBar, minPhaseSeconds, maxPhaseSeconds};
     }
 
     @Override
     public void loadSettingsState(Object state) {
-        if (state instanceof Number num) {
-            phaseSeconds = num.intValue();
+        if (state instanceof Object[] arr && arr.length >= 3) {
+            if (arr[0] instanceof Boolean b) showBossBar = b;
+            if (arr[1] instanceof Number n1) minPhaseSeconds = n1.intValue();
+            if (arr[2] instanceof Number n2) maxPhaseSeconds = n2.intValue();
         }
     }
 }

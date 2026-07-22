@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 public class SnakeChallenge extends BaseChallenge {
 
-    private int trailSeconds = 8; // Default 8s
+    private int trailSeconds = 8; // Default 8s, -1 = Verfällt NIE
 
     @Override
     public String getName() {
@@ -32,7 +32,7 @@ public class SnakeChallenge extends BaseChallenge {
 
     @Override
     public String getDescription() {
-        return "Spieler ziehen eine Wollspur hinter sich her. Wer auf rote Wolle tritt, stirbt. Spurdauer einstellbar.";
+        return "Spieler ziehen eine tödliche Wollspur hinter sich her. Wer auf rote Wolle tritt, stirbt sofort!";
     }
 
     @Override
@@ -55,15 +55,16 @@ public class SnakeChallenge extends BaseChallenge {
     public void openSettings(Player player) {
         CustomGUI gui = new CustomGUI(Component.text("§c§lSnake Spurdauer"), 3);
 
-        int[] times = {4, 8, 15, 30};
-        int[] slots = {10, 12, 14, 16};
+        int[] times = {4, 8, 15, 30, -1};
+        String[] labels = {"4 Sekunden", "8 Sekunden", "15 Sekunden", "30 Sekunden", "§c§lVerfällt NIE (Permanent)"};
+        int[] slots = {10, 11, 12, 13, 15};
 
         for (int i = 0; i < times.length; i++) {
             int t = times[i];
             ItemStack item = createSettingsItem(
-                    Material.CLOCK,
-                    "§e§lSpurdauer: " + t + " Sekunden",
-                    "§7Rote Wolle verfällt nach " + t + "s.",
+                    t == -1 ? Material.BARRIER : Material.CLOCK,
+                    labels[i],
+                    t == -1 ? "§7Die rote Wolle bleibt für immer bestehen." : "§7Rote Wolle verfällt nach " + t + "s.",
                     "",
                     t == trailSeconds ? "§a§lAktuell Ausgewählt" : "§7[Klicke zum Auswählen]"
             );
@@ -122,8 +123,8 @@ public class SnakeChallenge extends BaseChallenge {
         Material type = standOn.getType();
 
         if (type == Material.RED_WOOL) {
-            player.damage(20.0);
-            player.sendMessage("§cDu bist in eine Snake-Spur gelaufen!");
+            player.setHealth(0.0); // Sofortiger Tod
+            player.sendMessage("§cDu bist in eine tödliche Snake-Spur gelaufen!");
             return;
         }
 
@@ -131,15 +132,18 @@ public class SnakeChallenge extends BaseChallenge {
             BlockState originalState = standOn.getState();
             standOn.setType(Material.RED_WOOL);
 
-            long ticks = trailSeconds * 20L;
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (isEnabled()) {
-                        originalState.update(true, false);
+            // Nur wenn trailSeconds != -1 ist, verfällt die Wolle
+            if (trailSeconds > 0) {
+                long ticks = trailSeconds * 20L;
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (isEnabled()) {
+                            originalState.update(true, false);
+                        }
                     }
-                }
-            }.runTaskLater(ChallX.getInstance(), ticks);
+                }.runTaskLater(ChallX.getInstance(), ticks);
+            }
         }
     }
 
