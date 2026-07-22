@@ -58,13 +58,20 @@ public class OnlyUpChallenge extends BaseChallenge {
         if (to == null) return;
 
         double currentY = to.getY();
-        double maxY = maxYMap.getOrDefault(player.getUniqueId(), currentY);
+        UUID uuid = player.getUniqueId();
 
-        if (currentY < maxY - 0.1) {
+        if (!maxYMap.containsKey(uuid)) {
+            maxYMap.put(uuid, currentY);
+            return;
+        }
+
+        double maxY = maxYMap.get(uuid);
+
+        if (currentY < maxY - 0.05) {
             event.setCancelled(true);
             player.sendMessage("§c[Nur nach oben] Du darfst dich nur nach oben bewegen!");
         } else if (currentY > maxY) {
-            maxYMap.put(player.getUniqueId(), currentY);
+            maxYMap.put(uuid, currentY);
         }
     }
 }

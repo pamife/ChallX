@@ -2,6 +2,7 @@ package me.pamife.challX.challenge.impl;
 
 import me.pamife.challX.ChallX;
 import me.pamife.challX.challenge.BaseChallenge;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
@@ -26,7 +27,7 @@ public class ChunkEffectChallenge extends BaseChallenge {
             PotionEffectType.MINING_FATIGUE, PotionEffectType.STRENGTH, PotionEffectType.JUMP_BOOST,
             PotionEffectType.REGENERATION, PotionEffectType.RESISTANCE, PotionEffectType.FIRE_RESISTANCE,
             PotionEffectType.WATER_BREATHING, PotionEffectType.INVISIBILITY, PotionEffectType.NIGHT_VISION,
-            PotionEffectType.LEVITATION, PotionEffectType.GLOWING, PotionEffectType.SLOW_FALLING
+            PotionEffectType.GLOWING, PotionEffectType.SLOW_FALLING
     );
 
     @Override
@@ -65,7 +66,9 @@ public class ChunkEffectChallenge extends BaseChallenge {
                     int hash = Math.abs((chunk.getX() * 31 + chunk.getZ()) % EFFECTS.size());
                     PotionEffectType effectType = EFFECTS.get(hash);
 
-                    player.addPotionEffect(new PotionEffect(effectType, 40, 0, false, false, true));
+                    // Effekt anwenden (60 Ticks = 3s Dauer, Partikel an)
+                    player.addPotionEffect(new PotionEffect(effectType, 60, 1, false, true, true));
+                    player.sendActionBar(Component.text("§b[Chunk-Effekt] §e" + effectType.getName()));
                 }
             }
         }.runTaskTimer(ChallX.getInstance(), 20L, 20L);

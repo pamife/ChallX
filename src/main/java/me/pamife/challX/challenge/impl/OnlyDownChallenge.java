@@ -58,13 +58,20 @@ public class OnlyDownChallenge extends BaseChallenge {
         if (to == null) return;
 
         double currentY = to.getY();
-        double minY = minYMap.getOrDefault(player.getUniqueId(), currentY);
+        UUID uuid = player.getUniqueId();
 
-        if (currentY > minY + 0.1) {
+        if (!minYMap.containsKey(uuid)) {
+            minYMap.put(uuid, currentY);
+            return;
+        }
+
+        double minY = minYMap.get(uuid);
+
+        if (currentY > minY + 0.05) {
             event.setCancelled(true);
             player.sendMessage("§c[Nur nach unten] Du darfst dich nur nach unten bewegen!");
         } else if (currentY < minY) {
-            minYMap.put(player.getUniqueId(), currentY);
+            minYMap.put(uuid, currentY);
         }
     }
 }

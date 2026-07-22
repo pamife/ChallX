@@ -4,8 +4,10 @@ import me.pamife.challX.ChallX;
 import me.pamife.challX.challenge.BaseChallenge;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
@@ -53,16 +55,26 @@ public class MobDamageEffectChallenge extends BaseChallenge {
         if (!isEnabled()) return;
         if (!ChallX.getInstance().getTimerManager().isRunning()) return;
 
-        if (event.getEntity() instanceof Player player && event.getDamager() instanceof LivingEntity attacker) {
-            if (attacker instanceof Player) return;
+        if (event.getEntity() instanceof Player player) {
             if (ChallX.getInstance().getSettingsManager().isExcluded(player.getUniqueId())) return;
             if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR || player.getGameMode() == org.bukkit.GameMode.CREATIVE) return;
 
-            PotionEffectType effectType = ALL_EFFECTS.get(new Random().nextInt(ALL_EFFECTS.size()));
-            player.addPotionEffect(new PotionEffect(effectType, PotionEffect.INFINITE_DURATION, 0, false, true, true));
+            Entity damagerEntity = event.getDamager();
+            LivingEntity attacker = null;
 
-            player.playSound(player.getLocation(), Sound.ENTITY_WITCH_DRINK, 0.5f, 1.0f);
-            player.sendMessage("§c[Mob Damage = Effekt] Du hast den permanenten Effekt §e" + effectType.getName() + " §cerhalten!");
+            if (damagerEntity instanceof LivingEntity living) {
+                attacker = living;
+            } else if (damagerEntity instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity shooter) {
+                attacker = shooter;
+            }
+
+            if (attacker != null && !(attacker instanceof Player)) {
+                PotionEffectType effectType = ALL_EFFECTS.get(new Random().nextInt(ALL_EFFECTS.size()));
+                player.addPotionEffect(new PotionEffect(effectType, PotionEffect.INFINITE_DURATION, 0, false, true, true));
+
+                player.playSound(player.getLocation(), Sound.ENTITY_WITCH_DRINK, 0.5f, 1.0f);
+                player.sendMessage("§c[Mob Damage = Effekt] Du hast durch " + attacker.getType().name() + " den permanenten Effekt §e" + effectType.getName() + " §cerhalten!");
+            }
         }
     }
 }

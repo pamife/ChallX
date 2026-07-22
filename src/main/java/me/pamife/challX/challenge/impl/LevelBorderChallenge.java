@@ -14,6 +14,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class LevelBorderChallenge extends BaseChallenge {
 
+    private int highestLevelReached = 0;
+
     @Override
     public String getName() {
         return "Level = Border";
@@ -21,7 +23,7 @@ public class LevelBorderChallenge extends BaseChallenge {
 
     @Override
     public String getDescription() {
-        return "Die Worldborder entspricht dem XP-Level der Spieler. Beim Start werden alle Spieler in die Zone teleportiert.";
+        return "Die Worldborder entspricht dem XP-Level der Spieler. Beim Deaktivieren wird die Border zurückgesetzt.";
     }
 
     @Override
@@ -37,9 +39,16 @@ public class LevelBorderChallenge extends BaseChallenge {
 
     @Override
     public void onEnable() {
+        highestLevelReached = 0;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.getLevel() > highestLevelReached) {
+                highestLevelReached = p.getLevel();
+            }
+        }
+
         updateBorder();
 
-        // Berichtigung: Alle Spieler beim Start in das Zentrum der WorldBorder teleportieren
+        // Alle Spieler beim Start in das Zentrum der WorldBorder teleportieren
         World world = Bukkit.getWorlds().get(0);
         Location center = world.getWorldBorder().getCenter();
         Location targetLoc = world.getHighestBlockAt(center).getLocation().add(0.5, 1.0, 0.5);
@@ -50,6 +59,15 @@ public class LevelBorderChallenge extends BaseChallenge {
                 p.sendMessage("§a[Level = Border] Du wurdest in die Border-Zone teleportiert!");
             }
         }
+    }
+
+    @Override
+    public void onDisable() {
+        highestLevelReached = 0;
+        for (World world : Bukkit.getWorlds()) {
+            world.getWorldBorder().reset();
+        }
+        Bukkit.broadcastMessage("§a[Level = Border] WorldBorder wurde wieder auf den Standardwert zurückgesetzt.");
     }
 
     @EventHandler
@@ -66,25 +84,21 @@ public class LevelBorderChallenge extends BaseChallenge {
             }
         }
 
-        updateBorder();
+        if (newLevel > highestLevelReached) {
+            highestLevelReached = newLevel;
+            updateBorder();
+        }
     }
 
     private void updateBorder() {
-        int maxLevel = 0;
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p.getLevel() > maxLevel) {
-                maxLevel = p.getLevel();
-            }
-        }
-
         // Mindestgröße 5.0, sonst Level * 2.0
-        double borderSize = Math.max(5.0, maxLevel * 2.0);
+        double borderSize = Math.max(5.0, highestLevelReached * 2.0);
 
         for (World world : Bukkit.getWorlds()) {
             WorldBorder border = world.getWorldBorder();
             border.setSize(borderSize);
         }
 
-        Bukkit.broadcastMessage("§a[Level = Border] §eWorldBorder wurde auf §6" + borderSize + " §eBlöcke angepasst! (Level: " + maxLevel + ")");
+        Bukkit.broadcastMessage("§a[Level = Border] §eWorldBorder wurde auf §6" + borderSize + " §eBlöcke angepasst! (Level: " + highestLevelReached + ")");
     }
 }
