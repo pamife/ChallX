@@ -2,9 +2,13 @@ package me.pamife.challX.challenge.impl;
 
 import me.pamife.challX.ChallX;
 import me.pamife.challX.challenge.BaseChallenge;
+import me.pamife.challX.gui.CustomGUI;
+import me.pamife.challX.gui.GUIButton;
+import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -15,7 +19,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Arrays;
+
 public class SnakeChallenge extends BaseChallenge {
+
+    private int trailSeconds = 8; // Default 8s
 
     @Override
     public String getName() {
@@ -24,7 +32,7 @@ public class SnakeChallenge extends BaseChallenge {
 
     @Override
     public String getDescription() {
-        return "Spieler ziehen eine Spur aus Roter Wolle hinter sich her. Wer auf rote Wolle tritt, stirbt sofort.";
+        return "Spieler ziehen eine Wollspur hinter sich her. Wer auf rote Wolle tritt, stirbt. Spurdauer einstellbar.";
     }
 
     @Override
@@ -36,6 +44,63 @@ public class SnakeChallenge extends BaseChallenge {
             item.setItemMeta(meta);
         }
         return item;
+    }
+
+    @Override
+    public boolean hasSettings() {
+        return true;
+    }
+
+    @Override
+    public void openSettings(Player player) {
+        CustomGUI gui = new CustomGUI(Component.text("§c§lSnake Spurdauer"), 3);
+
+        int[] times = {4, 8, 15, 30};
+        int[] slots = {10, 12, 14, 16};
+
+        for (int i = 0; i < times.length; i++) {
+            int t = times[i];
+            ItemStack item = createSettingsItem(
+                    Material.CLOCK,
+                    "§e§lSpurdauer: " + t + " Sekunden",
+                    "§7Rote Wolle verfällt nach " + t + "s.",
+                    "",
+                    t == trailSeconds ? "§a§lAktuell Ausgewählt" : "§7[Klicke zum Auswählen]"
+            );
+            gui.setButton(slots[i], new GUIButton(item, e -> {
+                trailSeconds = t;
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
+                openSettings(player);
+            }));
+        }
+
+        gui.setButton(22, new GUIButton(
+                createSettingsItem(Material.BARRIER, "§cZurück zu Challenges"),
+                e -> ChallX.getInstance().openChallengesGUI(player)
+        ));
+
+        fillBackground(gui);
+        gui.open(player);
+    }
+
+    private ItemStack createSettingsItem(Material material, String name, String... lore) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(name);
+            meta.setLore(Arrays.asList(lore));
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private void fillBackground(CustomGUI gui) {
+        ItemStack filler = createSettingsItem(Material.GRAY_STAINED_GLASS_PANE, "§7 ");
+        for (int i = 0; i < 27; i++) {
+            if (gui.getButton(i) == null) {
+                gui.setButton(i, new GUIButton(filler, e -> {}));
+            }
+        }
     }
 
     @EventHandler
@@ -51,25 +116,22 @@ public class SnakeChallenge extends BaseChallenge {
         Location to = event.getTo();
         if (to == null) return;
 
-        // Nur bei Blockwechsel prüfen
         if (from.getBlockX() == to.getBlockX() && from.getBlockY() == to.getBlockY() && from.getBlockZ() == to.getBlockZ()) return;
 
         Block standOn = to.getBlock().getRelative(BlockFace.DOWN);
         Material type = standOn.getType();
 
-        // Wenn er auf rote Wolle tritt -> Tod!
         if (type == Material.RED_WOOL) {
             player.damage(20.0);
             player.sendMessage("§cDu bist in eine Snake-Spur gelaufen!");
             return;
         }
 
-        // Spur legen, wenn der Block solide und kein Luft/Portal/Flüssigkeit ist
         if (type != Material.AIR && type != Material.WATER && type != Material.LAVA && type != Material.BEDROCK) {
             BlockState originalState = standOn.getState();
             standOn.setType(Material.RED_WOOL);
 
-            // Nach 8 Sekunden (160 Ticks) zurücksetzen
+            long ticks = trailSeconds * 20L;
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -77,7 +139,19 @@ public class SnakeChallenge extends BaseChallenge {
                         originalState.update(true, false);
                     }
                 }
-            }.runTaskLater(ChallX.getInstance(), 160L);
+            }.runTaskLater(ChallX.getInstance(), ticks);
+        }
+    }
+
+    @Override
+    public Object getSettingsState() {
+        return trailSeconds;
+    }
+
+    @Override
+    public void loadSettingsState(Object state) {
+        if (state instanceof Number num) {
+            trailSeconds = num.intValue();
         }
     }
 }
